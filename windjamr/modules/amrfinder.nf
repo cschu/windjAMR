@@ -1,11 +1,15 @@
 process amrfinder {
 	container "quay.io/biocontainers/ncbi-amrfinderplus:4.0.23--hf69ffd2_0"
 	cpus 4
-	time {8.h * task.attempt}
+	time {1.d * task.attempt}
+	memory {64.GB * task.attempt}
 
 	input:
 	tuple val(genome), path(fasta)
 	path(db)
+
+	output:
+	tuple val(genome), path("${genome}/amrfinder/${genome}.tsv"), emit: results
 
 	script:
 	"""

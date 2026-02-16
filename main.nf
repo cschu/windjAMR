@@ -1,11 +1,10 @@
-include { amrfinder } from "./windjamr/modules/amrfinder"
-
+include { windjamr_genes } from "./windjamr/workflows/genes"
 
 params.contig_file_pattern = "**.{fna,fasta,fa,fna.gz,fasta.gz,fa.gz}"
 params.gene_file_pattern = "**.{faa,fna,fasta,fa,faa.gz,fna.gz,fasta.gz,fa.gz}"
 params.contigs = null
 params.genes = null
-params.amrfinder_db = "/g/bork6/dickinson/argnorm_prep/containers/AMRFinder_DB/2025-07-16.1"
+
 
 workflow {
 
@@ -33,12 +32,6 @@ workflow {
 	gene_input_ch.proteins.dump(pretty: true, tag: "gene_input_ch.proteins")
 	gene_input_ch.genes.dump(pretty: true, tag: "gene_input_ch.genes")
 	
-	amrfinder(
-		gene_input_ch.genes.mix(contig_input_ch),
-		params.amrfinder_db
-	)
 	
-
-
 
 }
