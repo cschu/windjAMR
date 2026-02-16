@@ -13,6 +13,8 @@ process amrfinder {
 	export TMPDIR=\$PWD/tmp
 	echo \$TMPDIR
 	amrfinder --threads ${task.cpus} -n ${fasta} --database ${db} -o ${genome}/amrfinder/${genome}.tsv
+
+	rm -rf tmp/
 	"""
 
 }
