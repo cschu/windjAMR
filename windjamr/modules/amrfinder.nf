@@ -9,7 +9,8 @@ process amrfinder {
 
 	script:
 	"""
-	mkdir -p ${genome}/amrfinder/
+	mkdir -p ${genome}/amrfinder/ tmp/
+	export TMPDIR=\$PWD/tmp
 	amrfinder --threads ${task.cpus} -n ${fasta} --database ${db} -o ${genome}/amrfinder/${genome}.tsv
 	"""
 
