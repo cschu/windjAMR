@@ -36,11 +36,11 @@ process card_rgi {
 	"""
 	mkdir -p ${genome}/rgi
 	rgi main \
-	 --input_sequence ${fasta} \
-	 --output_file ${genome}/rgi/${genome} \
-	 --input_type ${input_type} \
-	 --local \
-	 --clean
+	--input_sequence ${fasta} \
+	--output_file ${genome}/rgi/${genome} \
+	--input_type ${input_type} \
+	--local \
+	--clean
 	"""
 
 }

@@ -40,9 +40,9 @@ process hamronize_summarize {
 	mkdir -p ${genome}/hamronize/
 
 	hamronize summarize \
-	 -o ${genome}/hamronize/${genome}.combined.tsv \
-	 -t tsv \
-	 ${inputs}
+	-o ${genome}/hamronize/${genome}.combined.tsv \
+	-t tsv \
+	${inputs}
 	"""
 }
 

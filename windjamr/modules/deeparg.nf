@@ -16,10 +16,10 @@ process deeparg {
 	mkdir -p ${genome}/deeparg
 
 	deeparg predict \
-    --model LS \
-    --type nucl \
-    --input ${fasta} \
-    --output ${genome}/deeparg/${genome} \
-    --data-path ${db}
+	--model LS \
+	--type nucl \
+	--input ${fasta} \
+	--output ${genome}/deeparg/${genome} \
+	--data-path ${db}
 	"""
 }

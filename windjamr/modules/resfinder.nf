@@ -14,11 +14,11 @@ process resfinder {
 	mkdir -p ${genome}/resfinder/
 
 	python3 -m resfinder \
-	  -ifa ${fasta} \
-	  -o ${genome}/resfinder/ \
-	  -s Other \
-	  --acquired \
-	  -j ${genome}/resfinder/${genome}.resfinder.json
+	-ifa ${fasta} \
+	-o ${genome}/resfinder/ \
+	-s Other \
+	--acquired \
+	-j ${genome}/resfinder/${genome}.resfinder.json
 	"""
 }
 
