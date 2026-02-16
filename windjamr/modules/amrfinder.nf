@@ -11,6 +11,7 @@ process amrfinder {
 	"""
 	mkdir -p ${genome}/amrfinder/ tmp/
 	export TMPDIR=\$PWD/tmp
+	echo \$TMPDIR
 	amrfinder --threads ${task.cpus} -n ${fasta} --database ${db} -o ${genome}/amrfinder/${genome}.tsv
 	"""
 
