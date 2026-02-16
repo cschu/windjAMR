@@ -13,20 +13,21 @@ params.rgi_db = "/g/bork6/dickinson/argnorm_prep/containers/localDB"
 workflow windjamr_genes {
 
 	take:
-	gene_input_ch
+	genes
+	proteins
 
 	main:
 	amrfinder(
-		gene_input_ch.genes,
+		genes,
 		params.amrfinder_db
 	)
 	
 	deeparg(
-		gene_input_ch.genes,
+		genes,
 		params.deeparg_db
 	)
 
-	clean_faa(gene_input_ch.proteins)
+	clean_faa(proteins)
 
 	card_rgi(
 		clean_faa.out.proteins.map { genome, fasta -> [ genome, fasta, "protein" ] },

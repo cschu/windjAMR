@@ -32,7 +32,7 @@ workflow {
 	gene_input_ch.proteins.dump(pretty: true, tag: "gene_input_ch.proteins")
 	gene_input_ch.genes.dump(pretty: true, tag: "gene_input_ch.genes")
 
-	windjamr_genes(gene_input_ch)
+	windjamr_genes(gene_input_ch.genes, gene_input_ch.proteins)
 	
 	
 
