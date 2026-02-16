@@ -21,7 +21,9 @@ process deeparg {
 
 	script:
 	"""
-	mkdir -p ${genome}/deeparg
+	mkdir -p ${genome}/deeparg tmp/
+
+	export THEANO_FLAGS="base_compiledir=\$PWD/tmp"
 
 	deeparg predict \
 	--model LS \
