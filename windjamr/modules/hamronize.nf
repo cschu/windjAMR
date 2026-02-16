@@ -14,7 +14,7 @@ process hamronize {
 	"""
 	mkdir -p hamronized/${genome}/
 
-	hamronize ${tool} ${outputs} ${version_strings} \	
+	hamronize ${tool} ${outputs} ${version_strings} \
 	--output hamronized/${genome}/${genome}.${tool}.hamronized.tsv	
 	"""
 }
