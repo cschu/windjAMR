@@ -6,7 +6,7 @@ process hamronize {
 	tuple val(genome), path(results), val(tool), val(tool_version), val(db_version), val(db)
 
 	output:
-	tuple val(genome), path("hamronized/${genome}/${genome}.${tool}.hamronized.tsv"), val(tool), val(tool_version), val(db_version), val(db), emit: results
+	tuple val(genome), path("hamronized/${genome}/${genome}.${tool}.${db}.hamronized.tsv"), val(tool), val(tool_version), val(db_version), val(db), emit: results
 
 	script:
 
@@ -17,7 +17,7 @@ process hamronize {
 	mkdir -p hamronized/${genome}/
 
 	hamronize ${tool} ${results} ${input_file} ${version_strings} \
-	--output hamronized/${genome}/${genome}.${tool}.hamronized.tsv	
+	--output hamronized/${genome}/${genome}.${tool}.${db}.hamronized.tsv	
 	"""
 }
 
