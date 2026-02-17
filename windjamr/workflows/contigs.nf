@@ -40,7 +40,7 @@ workflow windjamr_contigs {
 	hamronize_input_ch = hamronize_input_ch.mix(
 		abricate.out.results
 			.filter { it[2] == "card" }
-			.map { genome, results, db -> [ genome, results, "abricate", "abricate_1.2.0", "card", null ] }
+			.map { genome, results, db -> [ genome, results, "abricate", "abricate_1.2.0", "card", "card" ] }
 	)
 	hamronize_input_ch = hamronize_input_ch.mix(
 		abricate.out.results
