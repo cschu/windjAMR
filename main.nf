@@ -48,7 +48,7 @@ workflow {
 
 	}
 
-	results_ch.dump(pretty: true, tag: results_ch)
+	results_ch.dump(pretty: true, tag: "results_ch")
 
 	// merge_dereplicate(
 	// 	results_ch,
