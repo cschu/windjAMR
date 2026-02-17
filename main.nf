@@ -1,5 +1,6 @@
 include { windjamr_genes } from "./windjamr/workflows/genes"
 include { windjamr_contigs } from "./windjamr/workflows/contigs"
+// include { merge_dereplicate } from "./windjamr/modules/merge_dereplicate"
 
 params.contig_file_pattern = "**.{fna,fasta,fa,fna.gz,fasta.gz,fa.gz}"
 params.gene_file_pattern = "**.{faa,fna,fasta,fa,faa.gz,fna.gz,fasta.gz,fa.gz}"
@@ -34,14 +35,24 @@ workflow {
 	gene_input_ch.genes.dump(pretty: true, tag: "gene_input_ch.genes")
 
 
+	results_ch = Channel.empty()
 	if (params.genes) {
 
 		windjamr_genes(gene_input_ch.genes, gene_input_ch.proteins)
+		results_ch = results_ch.mix(windjamr_genes.out.results)
 
 	} else if (params.contigs) {
 
 		windjamr_contigs(contig_input_ch)
+		results_ch = results_ch.mix(windjamr_contigs.out.results)
 
 	}
+
+	results_ch.dump(pretty: true, tag: results_ch)
+
+	// merge_dereplicate(
+	// 	results_ch,
+	// 	"${projectDir}/assets/card_collapsed.tsv"
+	// )
 
 }
