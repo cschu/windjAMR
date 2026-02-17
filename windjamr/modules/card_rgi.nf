@@ -22,6 +22,8 @@ process clean_faa {
 	"""
 }
 
+// export MPLCONFIGDIR=tmp/matplotlib
+
 process card_rgi {
 	container "quay.io/biocontainers/rgi:6.0.5--pyh05cac1d_0"
 	time {8.h * task.attempt}
