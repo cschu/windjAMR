@@ -31,13 +31,3 @@ process resfinder {
 	-j ${genome}/resfinder/${genome}.resfinder.json
 	"""
 }
-
-// singularity exec \
-//   --bind /g/bork6/dickinson/argnorm_prep/test_sample:/app \
-//   /g/bork6/dickinson/argnorm_prep/containers/resfinder_latest.sif \
-//   python3 -m resfinder \
-//       -ifa /app/SAMEA112496619_METAG_H5WNWDSXC.SW051-2-assembled.fa \
-//       -o /app/resfinder_output_new \
-//       -s Other \
-//       --acquired \
-//       -j /app/resfinder_output_new/resfinder_results.json

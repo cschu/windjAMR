@@ -24,26 +24,3 @@ process amrfinder {
 	"""
 
 }
-
-// # Run AMRFinderPlus
-// singularity exec \
-//   --bind ${HOST_WORKDIR}:/mnt,\
-// /g/bork6/dickinson/argnorm_prep/containers/AMRFinder_DB/2025-07-16.1:/mnt/amrfinder_db,\
-// ${TEMP_DIR}:/tmp \
-//   --env TMPDIR=/tmp \
-//   /g/bork6/dickinson/argnorm_prep/containers/ncbi-amrfinderplus_4.0.23--hf69ffd2_0.sif \
-//   amrfinder \
-//     -n /mnt/${INPUT_FASTA} \
-//     --database /mnt/amrfinder_db \
-//     -o /mnt/amrfinder_output_gene/${PREFIX}.amrfinder.gene.tsv
-
-// singularity exec \
-//   --bind ${HOST_WORKDIR}:/mnt,\
-// /g/bork6/dickinson/argnorm_prep/containers/AMRFinder_DB/2025-07-16.1:/mnt/amrfinder_db,\
-// ${TEMP_DIR}:/tmp \
-//   --env TMPDIR=/tmp \
-//   /g/bork6/dickinson/argnorm_prep/containers/ncbi-amrfinderplus_4.0.23--hf69ffd2_0.sif \
-//   amrfinder \
-//     --nucleotide /mnt/${INPUT_FASTA} \
-//     --database /mnt/amrfinder_db \
-//     -o /mnt/amrfinder_output/${PREFIX}.amrfinder.tsv

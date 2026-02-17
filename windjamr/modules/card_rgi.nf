@@ -38,8 +38,7 @@ process card_rgi {
 
 	output:
 	tuple val(genome), path("${genome}/rgi/${genome}.txt"), emit: results
-	// SAMEA112496619_METAG_H5WNWDSXC.SW051-2.psa_megahit.prodigal.txt
-
+	
 	script:
 	"""
 	mkdir -p ${genome}/rgi
@@ -53,17 +52,3 @@ process card_rgi {
 	"""
 
 }
-
-
-
-
-// singularity exec \
-//   --bind /g/bork6/dickinson/argnorm_prep/test_sample:/mnt/test_sample \
-//   --bind /g/bork6/dickinson/argnorm_prep/test_sample/rgi_output_protein:/mnt/output \
-//   /g/bork6/dickinson/argnorm_prep/containers/rgi_6.0.5--pyh05cac1d_0.sif \
-//   rgi main \
-//     --input_sequence /mnt/test_sample/SAMEA112496619_METAG_H5WNWDSXC.SW051-2.psa_megahit.prodigal.cleaned.faa \
-//     --output_file /mnt/output/rgi_output_protein \
-//     --input_type protein \
-//     --local \
-//     --clean

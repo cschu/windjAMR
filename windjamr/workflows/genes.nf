@@ -69,17 +69,10 @@ workflow windjamr_genes {
 			return [ genome, files[0], [files[1]] ]
 		}
 
-		// .map { genome, data -> [ genome, data[0][1], data[1][1] ] }
-
 	emit:
-
 	results = results_ch
 
 }
 
 
 // Input: hamronized CARD-RGI tsv, summarized normed AMRFinderPlus and DeepARG tsv, CARD-ARO key tsv
-// combined_normed_file <- args[1]
-// card_file            <- args[2]
-// output_file          <- args[3]
-// non_normed_files     <- args[4:length(args)]

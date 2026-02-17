@@ -20,14 +20,6 @@ process hamronize {
 	--output hamronized/${genome}/${genome}.${tool}.hamronized.tsv	
 	"""
 }
-	// singularity exec --bind $BIND_DIR \
-    //     $HAMRONIZATION_CONTAINER \
-    //     hamronize abricate \
-    //     "$INPUT_FILE" \
-    //     --analysis_software_version "abricate_1.2.0" \
-    //     --reference_database_version "abricate_1.2.0" \
-    //     --output "$HAMRONIZED_FILE"
-
 
 process hamronize_summarize {
 	container "quay.io/biocontainers/hamronization:1.1.9--pyhdfd78af_1"
@@ -49,11 +41,3 @@ process hamronize_summarize {
 	${inputs}
 	"""
 }
-
-// singularity exec --bind $BIND_DIR \
-//     $HAMRONIZATION_CONTAINER \
-//     hamronize summarize \
-//     -o "$SUMMARIZED_FILE" \
-//     -t tsv \
-//     "${INPUT_FILES[@]}"
-
