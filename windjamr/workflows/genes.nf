@@ -64,6 +64,11 @@ workflow windjamr_genes {
 				.map { genome, results, tool, tool_version, db_version, db -> [ genome, [ "non_normed", results ] ] }
 		)
 		.groupTuple(by: 0, size: 2)
+		.map { genome, data ->
+			def files = (data[0][0] == "normed") ? [ data[0][1], data[1][1] ] : [ data[1][1], data[0][1] ]
+			return [ genome, files[0], files[1] ]
+		}
+
 		// .map { genome, data -> [ genome, data[0][1], data[1][1] ] }
 
 	emit:
