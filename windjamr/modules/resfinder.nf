@@ -14,9 +14,15 @@ process resfinder {
 	"""
 	mkdir -p ${genome}/resfinder/
 
+	if [[ "${fasta}" == *".gz" ]]; then
+		gzip -dc ${fasta} > genome.fna
+	else
+		ln -sf ${fasta} genome.fna
+	fi
+
 	python3 -m resfinder \
 	--kma_threads ${task.cpus} \
-	-ifa ${fasta} \
+	-ifa genome.fna \
 	-o ${genome}/resfinder/ \
 	-s Other \
 	--acquired \
