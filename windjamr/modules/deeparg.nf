@@ -4,6 +4,7 @@ process deeparg {
 	time {8.h * task.attempt}
 	memory {32.GB * task.attempt}
 
+	// https://github.com/nf-core/funcscan/issues/23 // does not solve the compiledir issue on its own!
 	containerOptions {
         ['singularity', 'apptainer'].contains(workflow.containerEngine)
             ? '-B $(which bash):/usr/local/lib/python2.7/site-packages/Theano-0.8.2-py2.7.egg-info/PKG-INFO'
@@ -17,9 +18,10 @@ process deeparg {
 	path(db)
 
 	output:
-	tuple val(genome), path("${genome}/deeparg/${genome}"), emit: results
+	tuple val(genome), path("${genome}/deeparg/${genome}.align.daa.tsv"), emit: results
 
 	script:
+	// https://stackoverflow.com/questions/34346839/change-base-compiledir-to-save-compiled-files-in-another-directory
 	"""
 	mkdir -p ${genome}/deeparg tmp/
 
