@@ -1,4 +1,5 @@
 include { windjamr_genes } from "./windjamr/workflows/genes"
+include { windjamr_contigs } from "./windjamr/workflows/contigs"
 
 params.contig_file_pattern = "**.{fna,fasta,fa,fna.gz,fasta.gz,fa.gz}"
 params.gene_file_pattern = "**.{faa,fna,fasta,fa,faa.gz,fna.gz,fasta.gz,fa.gz}"
@@ -33,6 +34,7 @@ workflow {
 	gene_input_ch.genes.dump(pretty: true, tag: "gene_input_ch.genes")
 
 	windjamr_genes(gene_input_ch.genes, gene_input_ch.proteins)
+	windjamr_contigs(contig_input_ch)
 	
 	
 
