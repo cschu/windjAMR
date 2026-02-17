@@ -2,7 +2,7 @@ process hamronize {
 	container "quay.io/biocontainers/hamronization:1.1.9--pyhdfd78af_1"
 
 	input:
-	tuple val(genome), path(outputs), val(tool), val(tool_version), val(db_version), val(db)
+	tuple val(genome), path(results), val(tool), val(tool_version), val(db_version), val(db)
 
 	output:
 	tuple val(genome), path("hamronized/${genome}/${genome}.${tool}.hamronized.tsv"), val(tool), val(tool_version), val(db_version), val(db), emit: results
@@ -10,11 +10,12 @@ process hamronize {
 	script:
 
 	def version_strings = (tool != "resfinder") ? "--analysis_software_version ${tool_version} --reference_database_version ${db_version}" : "";
+	def input_file = (tool == "deeparg") ? "--input_file_name ${results}" : ""
 
 	"""
 	mkdir -p hamronized/${genome}/
 
-	hamronize ${tool} ${outputs} ${version_strings} \
+	hamronize ${tool} ${results} ${input_file} ${version_strings} \
 	--output hamronized/${genome}/${genome}.${tool}.hamronized.tsv	
 	"""
 }
