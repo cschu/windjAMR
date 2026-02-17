@@ -77,11 +77,11 @@ workflow windjamr_contigs {
 		.groupTuple(by: 0, size: 3)
 		.map { genome, data ->
 			def files = 
-			def files = (data[0][0] == "normed")
+			def files = ((data[0][0] == "normed")
 				? [ data[0][1], data[1][1], data[2][1] ]
 				: ((data[1][0] == "normed")
 					? [ data[1][1], data[0][1], data[2][1] ]
-					: [ data[2][1], data[0][1], data[1][1] ])
+					: [ data[2][1], data[0][1], data[1][1] ]))
 			
 			return [ genome, files[0], [files[1], files[2]] ]
 		}
