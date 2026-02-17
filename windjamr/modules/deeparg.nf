@@ -18,7 +18,7 @@ process deeparg {
 	path(db)
 
 	output:
-	tuple val(genome), path("${genome}/deeparg/${genome}.align.daa.tsv"), emit: results
+	tuple val(genome), path("${genome}/deeparg/${genome}.mapping.ARG"), emit: results
 
 	script:
 	// https://stackoverflow.com/questions/34346839/change-base-compiledir-to-save-compiled-files-in-another-directory
