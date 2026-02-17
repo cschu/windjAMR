@@ -68,13 +68,27 @@ workflow windjamr_contigs {
 	argnorm(hamronize_summarize.out.results)
 
 	results_ch = argnorm.out.results
+		.map { genome, results -> [ genome, [ "normed", results ] ] }
 		.mix(
 			hamronize.out.results
 				.filter { it -> ( it[2] == "rgi" || ( it[2] == "abricate" && it[5] == "card" ) ) }
-				.map { genome, results, tool, tool_version, db_version, db -> [ genome, results ] }
+				.map { genome, results, tool, tool_version, db_version, db -> [ genome, [ "non_normed", results ] ] }
 		)
+		.groupTuple(by: 0, size: 3)
+		.map { genome, data ->
+			def files = 
+			def files = (data[0][0] == "normed")
+				? [ data[0][1], data[1][1], data[2][1] ]
+				: ((data[1][0] == "normed")
+					? [ data[1][1], data[0][1], data[2][1] ]
+					: [ data[2][1], data[0][1], data[1][1] ])
+			
+			return [ genome, files[0], [files[1], files[2]] ]
+		}
 
 	emit:
 	results = results_ch
 
 }
+
+// Input: hamronized CARD-RGI tsv, hamronized abricate+card tsv, summarized normed tsv (resfinder/abricate+4/AMRFinderPlus), CARD-ARO key tsv
