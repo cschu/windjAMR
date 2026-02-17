@@ -30,6 +30,7 @@ process hamronize {
 
 
 process hamronize_summarize {
+	container "quay.io/biocontainers/hamronization:1.1.9--pyhdfd78af_1"
 	tag "${genome}"
 
 	input:
