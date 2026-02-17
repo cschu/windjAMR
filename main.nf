@@ -1,6 +1,6 @@
 include { windjamr_genes } from "./windjamr/workflows/genes"
 include { windjamr_contigs } from "./windjamr/workflows/contigs"
-// include { merge_dereplicate } from "./windjamr/modules/merge_dereplicate"
+include { merge_dereplicate } from "./windjamr/modules/merge_dereplicate"
 
 params.contig_file_pattern = "**.{fna,fasta,fa,fna.gz,fasta.gz,fa.gz}"
 params.gene_file_pattern = "**.{faa,fna,fasta,fa,faa.gz,fna.gz,fasta.gz,fa.gz}"
@@ -50,9 +50,9 @@ workflow {
 
 	results_ch.dump(pretty: true, tag: "results_ch")
 
-	// merge_dereplicate(
-	// 	results_ch,
-	// 	"${projectDir}/assets/card_collapsed.tsv"
-	// )
+	merge_dereplicate(
+		results_ch,
+		"${projectDir}/assets/card_collapsed.tsv"
+	)
 
 }
