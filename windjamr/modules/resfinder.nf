@@ -2,6 +2,7 @@ process resfinder {
 	container "genomicepidemiology/resfinder:4.7.2"
 	time {8.h * task.attempt}
 	memory {32.GB * task.attempt}
+	cpus 4
 
 	input:
 	tuple val(genome), path(fasta)
@@ -14,6 +15,7 @@ process resfinder {
 	mkdir -p ${genome}/resfinder/
 
 	python3 -m resfinder \
+	--kma_threads ${task.cpus} \
 	-ifa ${fasta} \
 	-o ${genome}/resfinder/ \
 	-s Other \

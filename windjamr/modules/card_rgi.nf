@@ -24,6 +24,7 @@ process card_rgi {
 	container "quay.io/biocontainers/rgi:6.0.5--pyh05cac1d_0"
 	time {8.h * task.attempt}
 	memory {32.GB * task.attempt}
+	cpus 8
 
 	input:
 	tuple val(genome), path(fasta), val(input_type)
@@ -37,6 +38,7 @@ process card_rgi {
 	"""
 	mkdir -p ${genome}/rgi
 	rgi main \
+	-n ${task.cpus} \
 	--input_sequence ${fasta} \
 	--output_file ${genome}/rgi/${genome} \
 	--input_type ${input_type} \
