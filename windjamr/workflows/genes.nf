@@ -63,8 +63,8 @@ workflow windjamr_genes {
 				.filter { it -> ( it[2] == "rgi" ) }
 				.map { genome, results, tool, tool_version, db_version, db -> [ genome, [ "non_normed", results ] ] }
 		)
-		.groupTuple(by: 0, size: 2, sort: true)
-		.map { genome, data -> [ genome, data[0][1], data[1][1] ] }
+		.groupTuple(by: 0, size: 2)
+		// .map { genome, data -> [ genome, data[0][1], data[1][1] ] }
 
 	emit:
 
