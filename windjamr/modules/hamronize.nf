@@ -9,7 +9,7 @@ process hamronize {
 
 	script:
 
-	def version_strings = (tool != "resfinder") ? "--analysis_software_version ${tool_version} --reference_database_version ${db_version}" : "";
+	def version_strings = (tool != "resfinder") ? "--analysis_software_version '${tool_version}' --reference_database_version '${db_version}'" : "";
 	def input_file = (tool == "deeparg") ? "--input_file_name ${results}" : ""
 
 	"""
