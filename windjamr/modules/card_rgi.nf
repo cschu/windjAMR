@@ -26,6 +26,7 @@ process clean_faa {
 
 process card_rgi {
 	container "quay.io/biocontainers/rgi:6.0.5--pyh05cac1d_0"
+	publishDir "${params.output_dir}", mode: "copy"
 	time {8.h * task.attempt}
 	memory {32.GB * task.attempt}
 	cpus 8

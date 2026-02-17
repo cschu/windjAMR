@@ -1,5 +1,6 @@
 process abricate {
 	container "quay.io/biocontainers/abricate:1.2.0--h05cac1d_0"
+	publishDir "${params.output_dir}", mode: "copy"
 	memory {32.GB * task.attempt}
 	time {8.h * task.attempt}
 	cpus 4

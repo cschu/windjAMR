@@ -1,5 +1,6 @@
 process resfinder {
 	container "genomicepidemiology/resfinder:4.7.2"
+	publishDir "${params.output_dir}", mode: "copy"
 	time {8.h * task.attempt}
 	memory {32.GB * task.attempt}
 	cpus 4

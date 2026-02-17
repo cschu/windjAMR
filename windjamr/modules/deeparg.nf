@@ -1,5 +1,6 @@
 process deeparg {
 	container "quay.io/biocontainers/deeparg:1.0.4--pyhdfd78af_0"
+	publishDir "${params.output_dir}", mode: "copy"
 	cpus 4
 	time {8.h * task.attempt}
 	memory {32.GB * task.attempt}

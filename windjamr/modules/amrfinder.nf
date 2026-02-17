@@ -1,5 +1,6 @@
 process amrfinder {
 	container "quay.io/biocontainers/ncbi-amrfinderplus:4.0.23--hf69ffd2_0"
+	publishDir "${params.output_dir}", mode: "copy"
 	cpus 4
 	time {1.d * task.attempt}
 	memory {64.GB * task.attempt}
