@@ -22,7 +22,7 @@ workflow windjamr_contigs {
 
 	card_rgi(
 		contig_input_ch.map { genome, fasta -> [ genome, fasta, "contig" ] },
-		rgi_db
+		params.rgi_db
 	)
 
 	abricate_input_ch = contig_input_ch
