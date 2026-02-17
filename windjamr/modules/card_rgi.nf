@@ -1,5 +1,7 @@
 process clean_faa {
 	executor "local"
+	tag "${genome}"
+
 	input:
 	tuple val(genome), path(fasta)
 
@@ -25,6 +27,7 @@ process card_rgi {
 	time {8.h * task.attempt}
 	memory {32.GB * task.attempt}
 	cpus 8
+	tag "${input_type}:${genome}"
 
 	input:
 	tuple val(genome), path(fasta), val(input_type)

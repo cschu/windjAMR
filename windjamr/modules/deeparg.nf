@@ -3,6 +3,7 @@ process deeparg {
 	cpus 4
 	time {8.h * task.attempt}
 	memory {32.GB * task.attempt}
+	tag "${genome}"
 
 	// https://github.com/nf-core/funcscan/issues/23 // does not solve the compiledir issue on its own!
 	containerOptions {

@@ -3,6 +3,7 @@ process abricate {
 	memory {32.GB * task.attempt}
 	time {8.h * task.attempt}
 	cpus 4
+	tag "${db}:${genome}"
 
 	input:
 	tuple val(genome), path(fasta),	val(db)

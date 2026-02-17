@@ -1,5 +1,6 @@
 process hamronize {
 	container "quay.io/biocontainers/hamronization:1.1.9--pyhdfd78af_1"
+	tag "${tool}:${db}:${genome}"
 
 	input:
 	tuple val(genome), path(results), val(tool), val(tool_version), val(db_version), val(db)
@@ -29,6 +30,7 @@ process hamronize {
 
 
 process hamronize_summarize {
+	tag "${genome}"
 
 	input:
 	tuple val(genome), path(inputs)

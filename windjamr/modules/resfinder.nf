@@ -3,6 +3,7 @@ process resfinder {
 	time {8.h * task.attempt}
 	memory {32.GB * task.attempt}
 	cpus 4
+	tag "${genome}"
 
 	input:
 	tuple val(genome), path(fasta)

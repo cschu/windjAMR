@@ -3,6 +3,7 @@ process amrfinder {
 	cpus 4
 	time {1.d * task.attempt}
 	memory {64.GB * task.attempt}
+	tag "${genome}"
 
 	input:
 	tuple val(genome), path(fasta)
