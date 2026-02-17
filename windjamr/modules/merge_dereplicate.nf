@@ -2,6 +2,7 @@ process merge_dereplicate {
 	container "ghcr.io/cschu/windjamr:main"
 	time '2.h'
 	memory '2.GB'
+	tag "${genome}"
 
 	input:
 	tuple val(genome), path(normed), path(non_normed)
