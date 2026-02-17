@@ -34,7 +34,7 @@ process card_rgi {
 	path(db)
 
 	output:
-	tuple val(genome), path("{genome}/rgi/${genome}.txt"), emit: results
+	tuple val(genome), path("${genome}/rgi/${genome}.txt"), emit: results
 	// SAMEA112496619_METAG_H5WNWDSXC.SW051-2.psa_megahit.prodigal.txt
 
 	script:
