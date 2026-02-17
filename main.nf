@@ -36,15 +36,18 @@ workflow {
 
 
 	results_ch = Channel.empty()
+	def runmode = null
 	if (params.genes) {
 
 		windjamr_genes(gene_input_ch.genes, gene_input_ch.proteins)
 		results_ch = results_ch.mix(windjamr_genes.out.results)
+		runmode = "genes"
 
 	} else if (params.contigs) {
 
 		windjamr_contigs(contig_input_ch)
 		results_ch = results_ch.mix(windjamr_contigs.out.results)
+		runmode = "contigs"
 
 	}
 
@@ -52,7 +55,8 @@ workflow {
 
 	merge_dereplicate(
 		results_ch,
-		"${projectDir}/assets/card_collapsed.tsv"
+		"${projectDir}/assets/card_collapsed.tsv",
+		runmode
 	)
 
 }
