@@ -22,6 +22,38 @@ process clean_faa {
 	"""
 }
 
+
+process clean_faa_bulk {
+	executor "local"
+	tag "${genome}"
+
+	input:
+	path(fasta_files)
+
+	output:
+	path("cleaned_faa/*.faa"), emit: proteins
+
+	script:
+	"""
+	set -e -o pipefail
+
+	mkdir -p cleaned_faa
+
+	for faa in \(find . -maxdepth 1 -mindepth 1 -type l); do
+		if [[ "${fasta}" == *".gz" ]]; then
+			tool=zcat
+		else
+			tool=cat
+		fi
+
+		genome=\$(basename \$genome | sed "s/\.(fa(s(ta)?)?|f[an]a)(\.gz)?$//")
+
+		\$tool \$faa | tr -d "*" > cleaned_faa/\$genome.faa
+	done
+	"""
+}
+
+
 process rgi_card {
 	container "quay.io/biocontainers/rgi:6.0.5--pyh05cac1d_0"
 	publishDir "${params.output_dir}", mode: "copy"

@@ -1,6 +1,6 @@
 include { amrfinder } from "../modules/amrfinder"
 include { deeparg } from "../modules/deeparg"
-include { rgi_card; clean_faa } from "../modules/rgi_card"
+include { rgi_card; clean_faa; clean_faa_bulk } from "../modules/rgi_card"
 include { hamronize; hamronize_summarize } from "../modules/hamronize"
 include { argnorm } from "../modules/argnorm"
 
@@ -27,10 +27,17 @@ workflow windjamr_genes {
 		params.deeparg_db
 	)
 
-	clean_faa(proteins)
+	// clean_faa(proteins)
+	// clean_proteins_ch = clean_faa.out.proteins.map { genome, fasta -> [ genome, fasta, "protein" ] }
+	clean_faa_bulk(proteins.map { genome, fasta -> fasta }.collect())
+	clean_proteins_ch = clean_faa_bulk.out.proteins
+		.map { fasta ->
+			def genome_id = fasta.name.replaceAll(/\.faa$/, "")
+			return [ genome, fasta ]
+		}
 
 	rgi_card(
-		clean_faa.out.proteins.map { genome, fasta -> [ genome, fasta, "protein" ] },
+		clean_proteins_ch,
 		params.rgi_db
 	)
 
