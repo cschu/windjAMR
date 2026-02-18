@@ -22,8 +22,6 @@ process clean_faa {
 	"""
 }
 
-// export MPLCONFIGDIR=tmp/matplotlib
-
 process card_rgi {
 	container "quay.io/biocontainers/rgi:6.0.5--pyh05cac1d_0"
 	publishDir "${params.output_dir}", mode: "copy"
@@ -41,7 +39,10 @@ process card_rgi {
 	
 	script:
 	"""
-	mkdir -p ${genome}/rgi
+	mkdir -p ${genome}/rgi tmp
+
+	export MPLCONFIGDIR=\$PWD/tmp/matplotlib
+
 	rgi main \
 	-n ${task.cpus} \
 	--input_sequence ${fasta} \
