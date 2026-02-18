@@ -11,14 +11,14 @@ process merge_dereplicate {
 	val(runmode)
 
 	output:
-	path("windjAMR.${runmode}.tsv")
+	path("${genome}.windjAMR.${runmode}.tsv")
 
 	script:
 
 	def script = "merge_dereplicate_${runmode}.R"
 	
 	"""
-	${script} ${normed} ${cardfile} windjAMR.${runmode}.tsv ${non_normed}
+	${script} ${normed} ${cardfile} ${genome}.windjAMR.${runmode}.tsv ${non_normed}
 	"""
 
 }
