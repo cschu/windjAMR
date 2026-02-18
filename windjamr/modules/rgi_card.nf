@@ -24,7 +24,7 @@ process clean_faa {
 
 
 process clean_faa_bulk {
-	executor "local"
+	time { 2.h * task.attempt }
 	tag "${genome}"
 
 	input:
