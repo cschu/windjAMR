@@ -1,5 +1,5 @@
 include { amrfinder } from "../modules/amrfinder"
-include { card_rgi } from "../modules/card_rgi"
+include { rgi_card } from "../modules/rgi_card"
 include { hamronize; hamronize_summarize } from "../modules/hamronize"
 include { argnorm } from "../modules/argnorm"
 include { abricate } from "../modules/abricate"
@@ -20,7 +20,7 @@ workflow windjamr_contigs {
 		params.amrfinder_db
 	)
 
-	card_rgi(
+	rgi_card(
 		contig_input_ch.map { genome, fasta -> [ genome, fasta, "contig" ] },
 		params.rgi_db
 	)
@@ -35,7 +35,7 @@ workflow windjamr_contigs {
 
 	hamronize_input_ch = Channel.empty()
 	hamronize_input_ch = hamronize_input_ch.mix(
-		card_rgi.out.results.map { genome, results -> [ genome, results, "rgi", "rgi_6.0.5", "CARD_4.0.1", null ] }
+		rgi_card.out.results.map { genome, results -> [ genome, results, "rgi", "rgi_6.0.5", "CARD_4.0.1", null ] }
 	)
 	hamronize_input_ch = hamronize_input_ch.mix(
 		abricate.out.results

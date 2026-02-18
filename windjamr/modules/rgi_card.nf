@@ -22,7 +22,7 @@ process clean_faa {
 	"""
 }
 
-process card_rgi {
+process rgi_card {
 	container "quay.io/biocontainers/rgi:6.0.5--pyh05cac1d_0"
 	publishDir "${params.output_dir}", mode: "copy"
 	time {8.h * task.attempt}
