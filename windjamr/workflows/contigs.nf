@@ -9,8 +9,8 @@ include { deeparg } from "../modules/deeparg"
 
 workflow windjamr_contigs {
 	take:
-	genes
 	contigs
+	genes
 
 	main:
 
