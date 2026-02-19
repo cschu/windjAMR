@@ -45,11 +45,15 @@ workflow {
 
 	if (params.genes != null && params.contigs == null) {
 
+		print "GENE MODE"
+
 		windjamr_genes(gene_input_ch.genes, gene_input_ch.proteins)
 		results_ch = results_ch.mix(windjamr_genes.out.results)
 		runmode = "genes"
 
 	} else if (params.contigs != null) {
+
+		print "CONTIG MODE"
 
 		genes_ch = (params.genes != null && params.add_deeparg_genes) ? gene_input_ch.genes : Channel.empty()
 		windjamr_contigs(contig_input_ch, genes_ch)
