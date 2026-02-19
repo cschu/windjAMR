@@ -79,7 +79,7 @@ workflow {
 		merge_dereplicate_deeparg(
 			results_ch,
 			"${projectDir}/assets/card_collapsed.tsv",
-			"deeparg"
+			"hybrid"
 		)
 	} else {
 		merge_dereplicate(
