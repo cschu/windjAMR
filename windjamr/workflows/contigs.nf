@@ -33,7 +33,7 @@ workflow windjamr_contigs {
 
 	rgi_card(
 		contigs,
-		params.rgi_db
+		params.rgi_db,
 		"contig"
 	)
 
