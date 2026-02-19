@@ -1,5 +1,4 @@
 include { amrfinder; postprocess_amrfinder } from "../modules/amrfinder"
-include { rgi_card } from "../modules/rgi_card"
 include { hamronize; hamronize_summarize } from "../modules/hamronize"
 include { deeparg } from "../modules/deeparg"
 include { rgi_card; clean_faa } from "../modules/rgi_card"
