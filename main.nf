@@ -61,7 +61,7 @@ workflow {
 		print "CONTIG MODE"
 
 		// genes_ch = (params.genes != null && params.add_deeparg_genes) ? gene_input_ch.genes : Channel.empty()
-		genes_ch = (params.genes != null && params.add_deeparg_genes) ? input_ch.map { row -> [ row.genome, row.genes ] } : Channel.empty()
+		// genes_ch = (params.genes != null && params.add_deeparg_genes) ? input_ch.map { row -> [ row.genome, row.genes ] } : Channel.empty()
 		// windjamr_contigs(contig_input_ch, genes_ch)
 		windjamr_contigs(
 			input_ch.map { row -> [ row.genome, row.contigs ] },

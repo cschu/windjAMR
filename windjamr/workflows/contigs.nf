@@ -86,6 +86,8 @@ workflow windjamr_contigs {
 
 	hamronize(hamronize_input_ch)
 
+	hamronize.out.results.dump(pretty: true, tag: "hamronize_out")
+
 	hamronize_summarize_input_ch = hamronize.out.results
 		.filter { it -> ( it[2] == "resfinder" || (it[2].startsWith("abricate") && it[5] != "card") || it[2] == "amrfinderplus" || (params.add_deeparg_genes && it[2] == "deeparg") ) }
 		.map { genome, results, tool, tool_version, db_version, db -> [ genome, results ] }
