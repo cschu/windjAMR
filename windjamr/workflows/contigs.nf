@@ -14,6 +14,9 @@ workflow windjamr_contigs {
 
 	main:
 
+	predictors_ch = Channel.fromPath("${projectDir}/assets/predictors.json").splitJson()
+	abricate_db_ch = predictors_ch.filter { it[0] == "abricate" }.map { it -> it[3] }
+
 	hamronize_input_ch = Channel.empty()
 
 	amrfinder(
@@ -22,7 +25,8 @@ workflow windjamr_contigs {
 	)
 
 	hamronize_input_ch = hamronize_input_ch.mix(
-		amrfinder.out.results.map { genome, results -> [ genome, results, "amrfinderplus", "ncbi-amrfinderplus_4.0.23", "AMRFinder_2025-07-16.1", null ] }
+		amrfinder.out.results.map { genome, results -> [ "amrfinderplus", genome, results, null ] }
+		// amrfinder.out.results.map { genome, results -> [ genome, results, "amrfinderplus", "ncbi-amrfinderplus_4.0.23", "AMRFinder_2025-07-16.1", null ] }
 	)
 
 	rgi_card(
@@ -31,30 +35,35 @@ workflow windjamr_contigs {
 	)
 
 	hamronize_input_ch = hamronize_input_ch.mix(
-		rgi_card.out.results.map { genome, results -> [ genome, results, "rgi", "rgi_6.0.5", "CARD_4.0.1", null ] }
+		rgi_card.out.results.map { genome, results -> [ "rgi", genome, results, null ] }
+		// rgi_card.out.results.map { genome, results -> [ genome, results, "rgi", "rgi_6.0.5", "CARD_4.0.1", null ] }
 	)
 
 	abricate_input_ch = contigs
-		.combine(Channel.of("card", "argannot", "megares", "ncbi", "resfinder"))
+		.combine(abricate_db_ch)
+		// .combine(Channel.of("card", "argannot", "megares", "ncbi", "resfinder"))
 
 	abricate(abricate_input_ch)
 
 	hamronize_input_ch = hamronize_input_ch.mix(
 		abricate.out.results
 			.filter { it[2] == "card" }
-			.map { genome, results, db -> [ genome, results, "abricate", "abricate_1.2.0", "card", "card" ] }
+			.map { genome, results, db -> [ "abricate_card", genome, results, "card" ] }
+			// .map { genome, results, db -> [ genome, results, "abricate", "abricate_1.2.0", "card", "card" ] }
 	)
 
 	hamronize_input_ch = hamronize_input_ch.mix(
 		abricate.out.results
 			.filter { it[2] != "card" }
-			.map { genome, results, db -> [ genome, results, "abricate", "abricate_1.2.0", "abricate_1.2.0", db ] }
+			.map { genome, results, db -> [ "abricate_x", genome, results, db ] }
+			// .map { genome, results, db -> [ genome, results, "abricate", "abricate_1.2.0", "abricate_1.2.0", db ] }
 	)
 
 	resfinder(contigs)
 
 	hamronize_input_ch = hamronize_input_ch.mix(
-		resfinder.out.results.map { genome, results -> [ genome, results, "resfinder", "", "", null ] }
+		resfinder.out.results.map { genome, results -> [ "resfinder", genome, results, null ] }
+		// resfinder.out.results.map { genome, results -> [ genome, results, "resfinder", "", "", null ] }
 	)
 
 	if (params.add_deeparg_genes) {
@@ -64,14 +73,21 @@ workflow windjamr_contigs {
 		)
 
 		hamronize_input_ch = hamronize_input_ch.mix(
-			deeparg.out.results.map { genome, results -> [ genome, results, "deeparg", "DeepARG 1.0.4", "DeepARG database v2", null ] }
+			deeparg.out.results.map { genome, results -> [ "deeparg", genome, results, null ] }
+			// deeparg.out.results.map { genome, results -> [ genome, results, "deeparg", "DeepARG 1.0.4", "DeepARG database v2", null ] }
 		)
 	}
+
+	hamronize_input_ch = hamronize_input_ch
+		.combine(predictors_ch, by: 0)
+		.map {
+			tool, genome, results, db, tool_version, db_version -> [ genome, results, tool, tool_version, db_version, db ]
+		}
 
 	hamronize(hamronize_input_ch)
 
 	hamronize_summarize_input_ch = hamronize.out.results
-		.filter { it -> ( it[2] == "resfinder" || (it[2] == "abricate" && it[5] != "card") || it[2] == "amrfinderplus" || (params.add_deeparg_genes && it[2] == "deeparg") ) }
+		.filter { it -> ( it[2] == "resfinder" || (it[2].startsWith("abricate") && it[5] != "card") || it[2] == "amrfinderplus" || (params.add_deeparg_genes && it[2] == "deeparg") ) }
 		.map { genome, results, tool, tool_version, db_version, db -> [ genome, results ] }
 		.groupTuple(by: 0, sort: true)
 
@@ -83,7 +99,7 @@ workflow windjamr_contigs {
 		.map { genome, results -> [ genome, [ "normed", results ] ] }
 		.mix(
 			hamronize.out.results
-				.filter { it -> ( it[2] == "rgi" || ( it[2] == "abricate" && it[5] == "card" ) ) }
+				.filter { it -> ( it[2] == "rgi" || ( it[2].startsWith("abricate") && it[5] == "card" ) ) }
 				.map { genome, results, tool, tool_version, db_version, db -> [ genome, [ "non_normed", results ] ] }
 		)
 		.groupTuple(by: 0, size: 3)
