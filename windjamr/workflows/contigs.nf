@@ -82,7 +82,7 @@ workflow windjamr_contigs {
 	hamronize_input_ch = hamronize_input_ch
 		.combine(predictors_ch, by: 0)
 		.map {
-			tool, genome, results, db, tool_version, db_version -> [ genome, results, tool, tool_version, db_version, db ]
+			tool, genome, results, db, tool_version, db_version -> [ genome, results, tool.replaceAll(/abricate_.+/, "abricate"), tool_version, db_version, db ]
 		}
 
 	hamronize(hamronize_input_ch)
@@ -90,7 +90,7 @@ workflow windjamr_contigs {
 	hamronize.out.results.dump(pretty: true, tag: "hamronize_out")
 
 	hamronize_summarize_input_ch = hamronize.out.results
-		.filter { it -> ( it[2] == "resfinder" || (it[2].startsWith("abricate") && it[5] != "card") || it[2] == "amrfinderplus" || (params.add_deeparg_genes && it[2] == "deeparg") ) }
+		.filter { it -> ( it[2] == "resfinder" || (it[2] == "abricate" && it[5] != "card") || it[2] == "amrfinderplus" || (params.add_deeparg_genes && it[2] == "deeparg") ) }
 		.map { genome, results, tool, tool_version, db_version, db -> [ genome, results ] }
 		.groupTuple(by: 0, sort: true)
 
@@ -102,7 +102,7 @@ workflow windjamr_contigs {
 		.map { genome, results -> [ genome, [ "normed", results ] ] }
 		.mix(
 			hamronize.out.results
-				.filter { it -> ( it[2] == "rgi" || ( it[2].startsWith("abricate") && it[5] == "card" ) ) }
+				.filter { it -> ( it[2] == "rgi" || ( it[2] == "abricate" && it[5] == "card" ) ) }
 				.map { genome, results, tool, tool_version, db_version, db -> [ genome, [ "non_normed", results ] ] }
 		)
 		.groupTuple(by: 0, size: 3)
