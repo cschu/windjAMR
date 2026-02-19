@@ -12,16 +12,31 @@ workflow windjamr_genes {
 	proteins
 
 	main:
+
+	predictors_ch = Channel.fromPath("${projectDir}/assets/predictors.json").splitJson()
+
+	hamronize_input_ch = Channel.empty()
+
 	amrfinder(
 		genes,
 		params.amrfinder_db
 	)
 	
+	hamronize_input_ch = hamronize_input_ch.mix(
+		amrfinder.out.results.map { genome, results -> [ "amrfinderplus", genome, results, null ] }
+		// amrfinder.out.results.map { genome, results -> [ genome, results, "amrfinderplus", "ncbi-amrfinderplus_4.0.23", "AMRFinder_2025-07-16.1", null ] }
+	)
+
 	deeparg(
 		genes,
 		params.deeparg_db
 	)
 
+	hamronize_input_ch = hamronize_input_ch.mix(
+		deeparg.out.results.map { genome, results -> [ "deeparg", genome, results, null ] }
+		// deeparg.out.results.map { genome, results -> [ genome, results, "deeparg", "DeepARG 1.0.4", "DeepARG database v2", null ] }
+	)
+	
 	clean_faa(proteins)
 
 	rgi_card(
@@ -29,16 +44,16 @@ workflow windjamr_genes {
 		params.rgi_db
 	)
 
-	hamronize_input_ch = Channel.empty()
 	hamronize_input_ch = hamronize_input_ch.mix(
-		amrfinder.out.results.map { genome, results -> [ genome, results, "amrfinderplus", "ncbi-amrfinderplus_4.0.23", "AMRFinder_2025-07-16.1", null ] }
+		rgi_card.out.results.map { genome, results -> [ "rgi", genome, results, null ] }
+		// rgi_card.out.results.map { genome, results -> [ genome, results, "rgi", "rgi_6.0.5", "CARD_4.0.1", null ] }
 	)
-	hamronize_input_ch = hamronize_input_ch.mix(
-		deeparg.out.results.map { genome, results -> [ genome, results, "deeparg", "DeepARG 1.0.4", "DeepARG database v2", null ] }
-	)
-	hamronize_input_ch = hamronize_input_ch.mix(
-		rgi_card.out.results.map { genome, results -> [ genome, results, "rgi", "rgi_6.0.5", "CARD_4.0.1", null ] }
-	)
+
+	hamronize_input_ch = hamronize_input_ch
+		.combine(predictors_ch, by: 0)
+		.map {
+			tool, genome, results, db, tool_version, db_version -> [ genome, results, tool, tool_version, db_version, db ]
+		}
 
 	hamronize(hamronize_input_ch)
 
