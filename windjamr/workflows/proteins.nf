@@ -40,8 +40,9 @@ workflow windjamr_proteins {
 	clean_faa(proteins)
 
 	rgi_card(
-		clean_faa.out.proteins.map { genome, fasta -> [ genome, fasta, "protein" ] },
-		params.rgi_db
+		clean_faa.out.proteins.map { genome, fasta -> [ genome, fasta ] },
+		params.rgi_db,
+		"protein"
 	)
 
 	hamronize_input_ch = hamronize_input_ch.mix(
