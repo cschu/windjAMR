@@ -32,8 +32,9 @@ workflow windjamr_contigs {
 	)
 
 	rgi_card(
-		contigs.map { genome, fasta -> [ genome, fasta, "contig" ] },
+		contigs,
 		params.rgi_db
+		"contig"
 	)
 
 	hamronize_input_ch = hamronize_input_ch.mix(

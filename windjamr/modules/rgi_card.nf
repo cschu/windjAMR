@@ -31,8 +31,9 @@ process rgi_card {
 	tag "${input_type}:${genome}"
 
 	input:
-	tuple val(genome), path(fasta), val(input_type)
+	tuple val(genome), path(fasta)
 	path(db)
+	val(input_type)
 
 	output:
 	tuple val(genome), path("${genome}/rgi/${genome}.txt"), emit: results

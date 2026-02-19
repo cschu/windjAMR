@@ -6,6 +6,7 @@ params.contig_file_pattern = "**.{fna,fasta,fa,fna.gz,fasta.gz,fa.gz}"
 params.gene_file_pattern = "**.{faa,fna,fasta,fa,faa.gz,fna.gz,fasta.gz,fa.gz}"
 params.contigs = null
 params.genes = null
+params.runmode = "genes"
 
 print "PARAMS: ${params}"
 
@@ -29,6 +30,7 @@ workflow {
 	// 		genes: true
 	// 	}
 	// 	.set { gene_input_ch }
+	predictors_ch = Channel.fromPath("${projectDir}/assets/predictors.json").splitJson()
 
 	input_ch = Channel.fromPath(params.samplesheet).splitCsv(header: true, sep: '\t')
 
@@ -41,35 +43,12 @@ workflow {
 
 
 	results_ch = Channel.empty()
-	def runmode = null
 
-	if (params.genes != null && params.contigs == null) {
-
-		print "GENE MODE"
-		
-
-		// windjamr_genes(gene_input_ch.genes, gene_input_ch.proteins)
-		windjamr_genes(
-			input_ch.map { row -> [ row.genome, row.genes ] },
-			input_ch.map { row -> [ row.genome, row.proteins ] }
-		)
+	if (params.runmode == "genes") {
+		windjamr_genes(input_ch.map { row -> [ row.genome, row.proteins ] }, predictors_ch)
 		results_ch = results_ch.mix(windjamr_genes.out.results)
-		runmode = "genes"
-
-	} else if (params.contigs != null) {
-
-		print "CONTIG MODE"
-
-		// genes_ch = (params.genes != null && params.add_deeparg_genes) ? gene_input_ch.genes : Channel.empty()
-		// genes_ch = (params.genes != null && params.add_deeparg_genes) ? input_ch.map { row -> [ row.genome, row.genes ] } : Channel.empty()
-		// windjamr_contigs(contig_input_ch, genes_ch)
-		windjamr_contigs(
-			input_ch.map { row -> [ row.genome, row.contigs ] },
-			(params.genes != null && params.add_deeparg_genes) ? input_ch.map { row -> [ row.genome, row.genes ] } : Channel.empty()
-		)
-		results_ch = results_ch.mix(windjamr_contigs.out.results)
-		runmode = "contigs"
-
+	} else if (params.runmode == "hybrid") {
+		results_ch = Channel.empty()
 	}
 
 	results_ch.dump(pretty: true, tag: "results_ch")
@@ -85,8 +64,40 @@ workflow {
 		merge_dereplicate(
 			results_ch,
 			"${projectDir}/assets/card_collapsed.tsv",
-			runmode
+			params.runmode
 		)
 	}
 
+	if (false) {
+
+		if (params.genes != null && params.contigs == null) {
+
+			print "GENE MODE"
+			
+
+			// windjamr_genes(gene_input_ch.genes, gene_input_ch.proteins)
+			// windjamr_genes(
+			// 	input_ch.map { row -> [ row.genome, row.genes ] },
+			// 	input_ch.map { row -> [ row.genome, row.proteins ] }
+			// )
+			windjamr_genes(input_ch.map { row -> [ row.genome, row.proteins ] }, predictors_ch)
+			results_ch = results_ch.mix(windjamr_genes.out.results)
+			runmode = "genes"
+
+		} else if (params.contigs != null) {
+
+			print "CONTIG MODE"
+
+			// genes_ch = (params.genes != null && params.add_deeparg_genes) ? gene_input_ch.genes : Channel.empty()
+			// genes_ch = (params.genes != null && params.add_deeparg_genes) ? input_ch.map { row -> [ row.genome, row.genes ] } : Channel.empty()
+			// windjamr_contigs(contig_input_ch, genes_ch)
+			windjamr_contigs(
+				input_ch.map { row -> [ row.genome, row.contigs ] },
+				(params.genes != null && params.add_deeparg_genes) ? input_ch.map { row -> [ row.genome, row.genes ] } : Channel.empty()
+			)
+			results_ch = results_ch.mix(windjamr_contigs.out.results)
+			runmode = "contigs"
+
+		}
+	}
 }

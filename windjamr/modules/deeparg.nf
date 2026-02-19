@@ -18,6 +18,7 @@ process deeparg {
 	input:
 	tuple val(genome), path(fasta)
 	path(db)
+	val(input_type)
 
 	output:
 	tuple val(genome), path("${genome}/deeparg/${genome}.mapping.ARG"), emit: results
@@ -31,9 +32,34 @@ process deeparg {
 
 	deeparg predict \
 	--model LS \
-	--type nucl \
+	--type ${input_type} \
 	--input ${fasta} \
 	--output ${genome}/deeparg/${genome} \
 	--data-path ${db}
 	"""
 }
+
+gene:
+singularity exec \
+  --bind /g/bork6/dickinson/argnorm_prep/test_sample:/mnt,\
+/g/bork6/dickinson/argnorm_prep/containers/deeparg_DB:/mnt/deeparg_db \
+  /g/bork6/dickinson/argnorm_prep/containers/deeparg_1.0.4--pyhdfd78af_0.sif \
+  deeparg predict \
+    --model LS \
+    --type nucl \
+    --input /mnt/SAMEA112496619_METAG_H5WNWDSXC.SW051-2.psa_megahit.prodigal.fna \
+    --output /mnt/deeparg_output_gene/SAMEA112496619_METAG_H5WNWDSXC.SW051-2.psa_megahit.prodigal.deeparg.gene \
+    --data-path /mnt/deeparg_db
+
+protein:
+
+singularity exec \
+  --bind /g/bork6/dickinson/argnorm_prep/test_sample:/mnt,\
+/g/bork6/dickinson/argnorm_prep/containers/deeparg_DB:/mnt/deeparg_db \
+  /g/bork6/dickinson/argnorm_prep/containers/deeparg_1.0.4--pyhdfd78af_0.sif \
+  deeparg predict \
+    --model LS \
+    --type prot \
+    --input /mnt/SAMEA112496619_METAG_H5WNWDSXC.SW051-2.psa_megahit.prodigal.faa \
+    --output /mnt/deeparg_output/SAMEA112496619_METAG_H5WNWDSXC.SW051-2.psa_megahit.prodigal \
+    --data-path /mnt/deeparg_db
