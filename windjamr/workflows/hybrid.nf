@@ -51,7 +51,7 @@ workflow windjamr_hybrid {
 	)
 
 	hamronize_input_ch = hamronize_input_ch
-		.combine(predictors_ch, by: 0)
+		.combine(predictors, by: 0)
 		.map {
 			tool, genome, results, db, tool_version, db_version -> [ genome, results, tool.replaceAll(/abricate_.+/, "abricate"), tool_version, db_version, db ]
 		}
