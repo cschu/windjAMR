@@ -1,6 +1,6 @@
 process merge_dereplicate {
 	container "ghcr.io/cschu/windjamr:main"
-	publishDir "${params.output_dir}", mode: "copy"
+	publishDir "${params.output_dir}/summaries", mode: "copy"
 	time '2.h'
 	memory '2.GB'
 	tag "${genome}"
