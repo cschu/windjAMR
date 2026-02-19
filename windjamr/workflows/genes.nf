@@ -5,11 +5,6 @@ include { hamronize; hamronize_summarize } from "../modules/hamronize"
 include { argnorm } from "../modules/argnorm"
 
 
-params.amrfinder_db = "/g/bork6/dickinson/argnorm_prep/containers/AMRFinder_DB/2025-07-16.1"
-params.deeparg_db = "/g/bork6/dickinson/argnorm_prep/containers/deeparg_DB"
-params.rgi_db = "/g/bork6/dickinson/argnorm_prep/containers/localDB"
-
-
 workflow windjamr_genes {
 
 	take:

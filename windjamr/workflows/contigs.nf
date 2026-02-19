@@ -4,62 +4,77 @@ include { hamronize; hamronize_summarize } from "../modules/hamronize"
 include { argnorm } from "../modules/argnorm"
 include { abricate } from "../modules/abricate"
 include { resfinder } from "../modules/resfinder"
-
-
-params.amrfinder_db = "/g/bork6/dickinson/argnorm_prep/containers/AMRFinder_DB/2025-07-16.1"
-params.rgi_db = "/g/bork6/dickinson/argnorm_prep/containers/localDB"
+include { deeparg } from "../modules/deeparg"
 
 
 workflow windjamr_contigs {
 	take:
-	contig_input_ch
+	genes
+	contigs
 
 	main:
-	amrfinder(
-		contig_input_ch,
-		params.amrfinder_db
-	)
-
-	rgi_card(
-		contig_input_ch.map { genome, fasta -> [ genome, fasta, "contig" ] },
-		params.rgi_db
-	)
-
-	abricate_input_ch = contig_input_ch
-		.combine(Channel.of("card", "argannot", "megares", "ncbi", "resfinder"))
-
-	abricate(abricate_input_ch)
-
-	resfinder(contig_input_ch)
-
 
 	hamronize_input_ch = Channel.empty()
-	hamronize_input_ch = hamronize_input_ch.mix(
-		rgi_card.out.results.map { genome, results -> [ genome, results, "rgi", "rgi_6.0.5", "CARD_4.0.1", null ] }
-	)
-	hamronize_input_ch = hamronize_input_ch.mix(
-		abricate.out.results
-			.filter { it[2] == "card" }
-			.map { genome, results, db -> [ genome, results, "abricate", "abricate_1.2.0", "card", "card" ] }
-	)
-	hamronize_input_ch = hamronize_input_ch.mix(
-		abricate.out.results
-			.filter { it[2] != "card" }
-			.map { genome, results, db -> [ genome, results, "abricate", "abricate_1.2.0", "abricate_1.2.0", db ] }
-	)
 
-	hamronize_input_ch = hamronize_input_ch.mix(
-		resfinder.out.results.map { genome, results -> [ genome, results, "resfinder", "", "", null ] }
+	amrfinder(
+		contigs,
+		params.amrfinder_db
 	)
 
 	hamronize_input_ch = hamronize_input_ch.mix(
 		amrfinder.out.results.map { genome, results -> [ genome, results, "amrfinderplus", "ncbi-amrfinderplus_4.0.23", "AMRFinder_2025-07-16.1", null ] }
 	)
 
+	rgi_card(
+		contigs.map { genome, fasta -> [ genome, fasta, "contig" ] },
+		params.rgi_db
+	)
+
+	hamronize_input_ch = hamronize_input_ch.mix(
+		rgi_card.out.results.map { genome, results -> [ genome, results, "rgi", "rgi_6.0.5", "CARD_4.0.1", null ] }
+	)
+
+	abricate_input_ch = contigs
+		.combine(Channel.of("card", "argannot", "megares", "ncbi", "resfinder"))
+
+	abricate(abricate_input_ch)
+
+	hamronize_input_ch = hamronize_input_ch.mix(
+		abricate.out.results
+			.filter { it[2] == "card" }
+			.map { genome, results, db -> [ genome, results, "abricate", "abricate_1.2.0", "card", "card" ] }
+	)
+
+	hamronize_input_ch = hamronize_input_ch.mix(
+		abricate.out.results
+			.filter { it[2] != "card" }
+			.map { genome, results, db -> [ genome, results, "abricate", "abricate_1.2.0", "abricate_1.2.0", db ] }
+	)
+
+	resfinder(contigs)
+
+	hamronize_input_ch = hamronize_input_ch.mix(
+		resfinder.out.results.map { genome, results -> [ genome, results, "resfinder", "", "", null ] }
+	)
+
+	if (params.add_deeparg_genes) {
+		deeparg(
+			genes,
+			params.deeparg_db
+		)
+
+		hamronize_input_ch = hamronize_input_ch.mix(
+			deeparg.out.results.map { genome, results -> [ genome, results, "deeparg", "DeepARG 1.0.4", "DeepARG database v2", null ] }
+		)
+	}
+
+
+	
+
 	hamronize(hamronize_input_ch)
 
 	hamronize_summarize_input_ch = hamronize.out.results
-		.filter { it -> ( it[2] == "resfinder" || (it[2] == "abricate" && it[5] != "card") || it[2] == "amrfinderplus" ) }
+		.filter { it -> ( it[2] == "resfinder" || (it[2] == "abricate" && it[5] != "card") || it[2] == "amrfinderplus" || (params.add_deeparg_genes && it[2] == "deeparg") ) }
 		.map { genome, results, tool, tool_version, db_version, db -> [ genome, results ] }
 		.groupTuple(by: 0, sort: true)
 
