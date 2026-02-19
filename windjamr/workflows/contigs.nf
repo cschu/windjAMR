@@ -100,7 +100,7 @@ workflow windjamr_contigs {
 	argnorm(hamronize_summarize.out.results)
 
 	extract_coords(
-		argnorm.out.results.join(genes, by: 0)
+		genes.join(argnorm.out.results, by: 0)
 	)
 
 	results_ch = argnorm.out.results
