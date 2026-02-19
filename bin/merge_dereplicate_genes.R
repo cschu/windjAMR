@@ -26,12 +26,36 @@ hamronized_normed <- read.delim(combined_normed_file, comment.char = "#")
 
 # Read all non-normed files and rbind immediately
 non_normed_list <- lapply(non_normed_files, function(f) {
+  
+  # If file is completely empty (0 bytes), return NULL
+  if (file.info(f)$size == 0) {
+    message(paste("Skipping empty file:", f))
+    return(NULL)
+  }
+  
   df <- read.delim(f, stringsAsFactors = FALSE)
+  
+  # If file has header but 0 rows, keep it (bind_rows handles this fine)
+  if (nrow(df) == 0) {
+    message(paste("File has header but no rows:", f))
+  }
+  
   if ("reference_accession" %in% colnames(df)) {
     df$reference_accession <- as.character(df$reference_accession)
   }
+  
   return(df)
 })
+
+# Remove NULLs before binding
+non_normed_list <- Filter(Negate(is.null), non_normed_list)
+
+# If all files were empty, create empty df
+if (length(non_normed_list) == 0) {
+  non_normed <- data.frame()
+} else {
+  non_normed <- bind_rows(non_normed_list)
+}
 
 non_normed <- bind_rows(non_normed_list)
 

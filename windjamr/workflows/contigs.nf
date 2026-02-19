@@ -5,6 +5,7 @@ include { argnorm } from "../modules/argnorm"
 include { abricate } from "../modules/abricate"
 include { resfinder } from "../modules/resfinder"
 include { deeparg } from "../modules/deeparg"
+include { extract_coords } from "../modules/extract_coords"
 
 
 workflow windjamr_contigs {
@@ -98,6 +99,10 @@ workflow windjamr_contigs {
 
 	argnorm(hamronize_summarize.out.results)
 
+	extract_coords(
+		argnorm.out.results.join(genes, by: 0)
+	)
+
 	results_ch = argnorm.out.results
 		.map { genome, results -> [ genome, [ "normed", results ] ] }
 		.mix(
@@ -115,6 +120,10 @@ workflow windjamr_contigs {
 			
 			return [ genome, files[0], [files[1], files[2]] ]
 		}
+
+	if (params.add_deeparg_genes) {
+		results_ch = results_ch.join(extract_coords.out.results, by: 0)
+	}
 
 	emit:
 	results = results_ch
