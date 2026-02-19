@@ -1,6 +1,8 @@
 process extract_coords {
 	executor "local"
 	tag "${genome}"
+	memory {4.GB * task.attempt}
+	time {30.min * task.attempt}
 
 	input:
 	tuple val(genome), path(fasta), path(deeparg_results)
