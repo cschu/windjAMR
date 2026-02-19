@@ -68,9 +68,6 @@ workflow windjamr_contigs {
 		)
 	}
 
-
-	
-
 	hamronize(hamronize_input_ch)
 
 	hamronize_summarize_input_ch = hamronize.out.results
