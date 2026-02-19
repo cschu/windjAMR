@@ -15,7 +15,8 @@ workflow windjamr_contigs {
 	main:
 
 	predictors_ch = Channel.fromPath("${projectDir}/assets/predictors.json").splitJson()
-	abricate_db_ch = predictors_ch.filter { it[0] == "abricate" }.map { it -> it[3] }
+	// abricate_db_ch = predictors_ch.filter { it[0] == "abricate" }.map { it -> it[3] }
+	abricate_db_ch = Channel.of("card", "argannot", "megares", "ncbi", "resfinder")
 
 	hamronize_input_ch = Channel.empty()
 
