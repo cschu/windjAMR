@@ -7,6 +7,7 @@ params.gene_file_pattern = "**.{faa,fna,fasta,fa,faa.gz,fna.gz,fasta.gz,fa.gz}"
 params.contigs = null
 params.genes = null
 
+print "PARAMS: ${params}"
 
 workflow {
 
