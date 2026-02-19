@@ -1,5 +1,6 @@
 include { windjamr_genes } from "./windjamr/workflows/genes"
 include { windjamr_contigs } from "./windjamr/workflows/contigs"
+include { windjamr_hybrid } from "./windjamr/workflows/hybrid"
 include { merge_dereplicate; merge_dereplicate_deeparg } from "./windjamr/modules/merge_dereplicate"
 
 params.contig_file_pattern = "**.{fna,fasta,fa,fna.gz,fasta.gz,fa.gz}"
@@ -40,33 +41,51 @@ workflow {
 	// contig_input_ch.dump(pretty: true, tag: "contig_input_ch")
 	// gene_input_ch.proteins.dump(pretty: true, tag: "gene_input_ch.proteins")
 	// gene_input_ch.genes.dump(pretty: true, tag: "gene_input_ch.genes")
+	input_ch.dump(pretty: true, tag: "input_ch")
 
 
 	results_ch = Channel.empty()
 
 	if (params.runmode == "genes") {
-		windjamr_genes(input_ch.map { row -> [ row.genome, row.proteins ] }, predictors_ch)
-		results_ch = results_ch.mix(windjamr_genes.out.results)
-	} else if (params.runmode == "hybrid") {
-		results_ch = Channel.empty()
-	}
-
-	results_ch.dump(pretty: true, tag: "results_ch")
-
-
-	if (params.add_deeparg_genes) {
-		merge_dereplicate_deeparg(
-			results_ch,
-			"${projectDir}/assets/card_collapsed.tsv",
-			"hybrid"
+		windjamr_genes(
+			input_ch.map { row -> [ row.genome, row.proteins ] },
+			predictors_ch
 		)
-	} else {
 		merge_dereplicate(
-			results_ch,
+			results_ch.mix(windjamr_genes.out.results),
+			"${projectDir}/assets/card_collapsed.tsv",
+			params.runmode
+		)
+	} else if (params.runmode == "hybrid") {
+		windjamr_hybrid(
+			input_ch.map { row -> [ row.genome, row.proteins ] },
+			input_ch.map { row -> [ row.genome, row.genes ] },
+			input_ch.map { row -> [ row.genome, row.contigs ] },
+			predictors_ch
+		)
+		merge_dereplicate_deeparg(
+			windjamr_hybrid.out.results,
 			"${projectDir}/assets/card_collapsed.tsv",
 			params.runmode
 		)
 	}
+
+	// results_ch.dump(pretty: true, tag: "results_ch")
+
+
+	// if (params.add_deeparg_genes) {
+	// 	merge_dereplicate_deeparg(
+	// 		results_ch,
+	// 		"${projectDir}/assets/card_collapsed.tsv",
+	// 		"hybrid"
+	// 	)
+	// } else {
+	// 	merge_dereplicate(
+	// 		results_ch,
+	// 		"${projectDir}/assets/card_collapsed.tsv",
+	// 		params.runmode
+	// 	)
+	// }
 
 	if (false) {
 
