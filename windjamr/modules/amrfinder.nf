@@ -44,7 +44,7 @@ process postprocess_amrfinder {
 	else
 		ln -sf ${fasta} proteins.faa
 	fi
-	prepare_amrfinder.py proteins.faa ${amrfinder_results} ${genome}.amrfinder.coordinates.tsv
+	postprocess_amrfinder.py proteins.faa ${amrfinder_results} ${genome}.amrfinder.coordinates.tsv
 	"""
 	// "$FAA_FILE" "$INPUT_FILE" "$PREPPED_INPUT"
 }
