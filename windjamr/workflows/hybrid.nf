@@ -4,7 +4,7 @@ include { amrfinder } from "../modules/amrfinder"
 include { rgi_card } from "../modules/rgi_card"
 include { abricate } from "../modules/abricate"
 include { resfinder } from "../modules/resfinder"
-include { deeparg; extract_coords } from "../modules/deeparg"
+include { deeparg; extract_deeparg_coords } from "../modules/deeparg"
 
 include { windjamr_proteins } from "./proteins"
 
@@ -66,7 +66,7 @@ workflow windjamr_hybrid {
 
 	argnorm(hamronize_summarize.out.results)
 
-	extract_coords(
+	extract_deeparg_coords(
 		genes.join(argnorm.out.results, by: 0)
 	)
 
@@ -88,7 +88,7 @@ workflow windjamr_hybrid {
 			return [ genome, files[0], [files[1], files[2]] ]
 		}
 
-	results_ch = results_ch.join(extract_coords.out.results, by: 0)	
+	results_ch = results_ch.join(extract_deeparg_coords.out.results, by: 0)	
 
 	emit:
 	results = results_ch

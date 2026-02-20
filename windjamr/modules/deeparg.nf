@@ -40,7 +40,7 @@ process deeparg {
 }
 
 
-process extract_coords {
+process extract_deeparg_coords {
 	tag "${genome}"
 	memory {4.GB * task.attempt}
 	time {30.min * task.attempt}
@@ -59,6 +59,6 @@ process extract_coords {
 		ln -sf ${fasta} genes.ffn
 	fi
 
-	extract_coords.py ${deeparg_results} genes.ffn ${genome}.deeparg.coordinates.tsv
+	extract_deeparg_coords.py ${deeparg_results} genes.ffn ${genome}.deeparg.coordinates.tsv
 	"""
 }

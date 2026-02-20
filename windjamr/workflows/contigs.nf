@@ -4,7 +4,7 @@ include { hamronize; hamronize_summarize } from "../modules/hamronize"
 include { argnorm } from "../modules/argnorm"
 include { abricate } from "../modules/abricate"
 include { resfinder } from "../modules/resfinder"
-include { deeparg; extract_coords } from "../modules/deeparg"
+include { deeparg; extract_deeparg_coords } from "../modules/deeparg"
 
 
 workflow windjamr_contigs {
@@ -99,7 +99,7 @@ workflow windjamr_contigs {
 
 	argnorm(hamronize_summarize.out.results)
 
-	extract_coords(
+	extract_deeparg_coords(
 		genes.join(argnorm.out.results, by: 0)
 	)
 
@@ -122,7 +122,7 @@ workflow windjamr_contigs {
 		}
 
 	if (params.add_deeparg_genes) {
-		results_ch = results_ch.join(extract_coords.out.results, by: 0)
+		results_ch = results_ch.join(extract_deeparg_coords.out.results, by: 0)
 	}
 
 	emit:

@@ -55,7 +55,7 @@ def parse_hamronized_ids(hamronized_path):
 def main():
     if len(sys.argv) != 4:
         print(
-            "Usage: python extract_coords.py "
+            "Usage: python extract_deeparg_coords.py "
             "<hamronized.tsv> <prodigal.fna> <output.tsv>",
             file=sys.stderr
         )
