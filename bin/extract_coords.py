@@ -36,7 +36,7 @@ def parse_hamronized_ids(hamronized_path):
     """
     Parse the hAMRonized TSV and return a list of unique input_sequence_id values.
     """
-    ids = []
+    # ids = []
     seen = set()
 
     with open(hamronized_path) as f:
@@ -44,10 +44,11 @@ def parse_hamronized_ids(hamronized_path):
         for row in reader:
             seq_id = row.get('input_sequence_id', '').strip()
             if seq_id and seq_id not in seen:
-                ids.append(seq_id)
+                yield seq_id
+                # ids.append(seq_id)
                 seen.add(seq_id)
 
-    return ids
+    # return ids
 
 
 def main():
@@ -68,26 +69,24 @@ def main():
     print(f"  Loaded {len(fasta_coords):,} sequences from FASTA.", file=sys.stderr)
 
     print("Parsing hAMRonized IDs...", file=sys.stderr)
-    seq_ids = parse_hamronized_ids(hamronized_path)
+    seq_ids = list(parse_hamronized_ids(hamronized_path))
     print(f"  Found {len(seq_ids):,} unique input_sequence_id values.", file=sys.stderr)
 
     missing = []
-    rows    = []
-
-    for seq_id in seq_ids:
-        if seq_id in fasta_coords:
-            start, stop = fasta_coords[seq_id]
-            rows.append((seq_id, start, stop))
-        else:
-            missing.append(seq_id)
+    n_rows = 0
 
     # Write output TSV
     with open(output_path, 'w') as out:
         out.write("input_sequence_id\tstart\tstop\n")
-        for seq_id, start, stop in rows:
-            out.write(f"{seq_id}\t{start}\t{stop}\n")
+        for seq_id in seq_ids:
+            coords = fasta_coords.get(seq_id)
+            if coords:
+                print(seq_id, *coords, sep="\t", file=out)
+                n_rows += 1
+            else:
+                missing.append(seq_id)
 
-    print(f"\nWrote {len(rows):,} rows to {output_path}.", file=sys.stderr)
+    print(f"\nWrote {n_rows:,} rows to {output_path}.", file=sys.stderr)
 
     if missing:
         print(
