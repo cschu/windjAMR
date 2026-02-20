@@ -39,13 +39,17 @@ def parse_hamronized_ids(hamronized_path):
     seen = set()
 
     with open(hamronized_path) as f:
-        reader = csv.DictReader(f, delimiter='\t')
+        for line in f:
+            if line[0] != "#":
+                break
+
+        reader = csv.DictReader(f, delimiter='\t', fieldnames=line.strip().split("\t"))
         for row in reader:
             if row.get("analysis_software_name", "") == "deeparg":
                 seq_id = row.get('input_sequence_id', '').strip()
                 if seq_id and seq_id not in seen:
-                    yield seq_id
                     seen.add(seq_id)
+                    yield seq_id
 
 
 def main():
