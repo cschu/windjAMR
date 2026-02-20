@@ -4,8 +4,7 @@ include { amrfinder } from "../modules/amrfinder"
 include { rgi_card } from "../modules/rgi_card"
 include { abricate } from "../modules/abricate"
 include { resfinder } from "../modules/resfinder"
-include { deeparg } from "../modules/deeparg"
-include { extract_coords } from "../modules/extract_coords"
+include { deeparg; extract_coords } from "../modules/deeparg"
 
 include { windjamr_proteins } from "./proteins"
 

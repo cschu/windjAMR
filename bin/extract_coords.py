@@ -36,19 +36,16 @@ def parse_hamronized_ids(hamronized_path):
     """
     Parse the hAMRonized TSV and return a list of unique input_sequence_id values.
     """
-    # ids = []
     seen = set()
 
     with open(hamronized_path) as f:
         reader = csv.DictReader(f, delimiter='\t')
         for row in reader:
-            seq_id = row.get('input_sequence_id', '').strip()
-            if seq_id and seq_id not in seen:
-                yield seq_id
-                # ids.append(seq_id)
-                seen.add(seq_id)
-
-    # return ids
+            if row.get("analysis_software_name", "") == "deeparg":
+                seq_id = row.get('input_sequence_id', '').strip()
+                if seq_id and seq_id not in seen:
+                    yield seq_id
+                    seen.add(seq_id)
 
 
 def main():
@@ -79,7 +76,7 @@ def main():
     with open(output_path, 'w') as out:
         out.write("input_sequence_id\tstart\tstop\n")
         for seq_id in seq_ids:
-            coords = fasta_coords.get(seq_id)
+            coords = fasta_coords.get(seq_id, fasta_coords.get(seq_id[:seq_id.rfind("_")]))
             if coords:
                 print(seq_id, *coords, sep="\t", file=out)
                 n_rows += 1

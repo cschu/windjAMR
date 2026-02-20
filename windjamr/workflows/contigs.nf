@@ -4,8 +4,7 @@ include { hamronize; hamronize_summarize } from "../modules/hamronize"
 include { argnorm } from "../modules/argnorm"
 include { abricate } from "../modules/abricate"
 include { resfinder } from "../modules/resfinder"
-include { deeparg } from "../modules/deeparg"
-include { extract_coords } from "../modules/extract_coords"
+include { deeparg; extract_coords } from "../modules/deeparg"
 
 
 workflow windjamr_contigs {
