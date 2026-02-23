@@ -61,6 +61,8 @@ if (n_patched == 0) {
     coord_lookup$stop[match_idx[rows_to_patch]]
 }
 
+
+
 # Read all non-normed files and rbind immediately
 non_normed_list <- lapply(non_normed_files, function(f) {
   
@@ -84,9 +86,6 @@ non_normed_list <- lapply(non_normed_files, function(f) {
   return(df)
 })
 
-# Remove NULLs before binding
-non_normed_list <- Filter(Negate(is.null), non_normed_list)
-
 # If all files were empty, create empty df
 if (length(non_normed_list) == 0) {
   non_normed <- data.frame()
@@ -95,7 +94,6 @@ if (length(non_normed_list) == 0) {
 }
 
 non_normed <- bind_rows(non_normed_list)
-
 
 # Populate ARO in non-normed: use reference_accession if it looks like a real ARO number,
 # otherwise fall back to matching gene_symbol against ARO_name in card_collapsed
@@ -164,6 +162,26 @@ for (col in cols_to_update) {
     combined_normed[update_rows, col] <-
       card_collapsed[[col]][update_card_idx]
   }
+}
+
+# -----------------------------
+# Populate coordinates for RGI rows
+# -----------------------------
+
+# Parse coordinates from Prodigal-style input_sequence_id where present
+prodigal_coord_pattern <- "^\\S+\\s*#\\s*(\\d+)\\s*#\\s*(\\d+)"
+
+parsed_coords <- str_match(combined_normed$input_sequence_id, prodigal_coord_pattern)
+
+rows_with_parsed <- which(!is.na(parsed_coords[,1]) & 
+                            combined_normed$analysis_software_name == "rgi" &
+                            (is.na(combined_normed$input_gene_start) | 
+                               is.na(combined_normed$input_gene_stop)))
+
+if (length(rows_with_parsed) > 0) {
+  message(sprintf("Populating coordinates for RGI outputs for %d row(s).", length(rows_with_parsed)))
+  combined_normed$input_gene_start[rows_with_parsed] <- as.numeric(parsed_coords[rows_with_parsed, 2])
+  combined_normed$input_gene_stop[rows_with_parsed]  <- as.numeric(parsed_coords[rows_with_parsed, 3])
 }
 
 # -----------------------------
