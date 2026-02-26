@@ -14,8 +14,8 @@ process collate_tables {
 	head -n 1 ${tables[0]} | awk -v OFS='\\t' '{print \$0,"sample"}' > all_samples.summary.tsv
 
 	for f in \$(find . -maxdepth 1 -mindepth 1 -name '*.tsv' | sort ); do
-		sample=\$(basename {} .tsv);
-		awk -v OFS='\\t' -v sample=\$sample 'NR>1 {print \$0,sample}' >> all_samples.summary.tsv	
+		sample=\$(basename \$f .tsv);
+		awk -v OFS='\\t' -v sample=\$sample 'NR>1 {print \$0,sample}' \$f >> all_samples.summary.tsv	
 	done
 	"""
 
