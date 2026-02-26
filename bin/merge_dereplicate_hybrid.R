@@ -109,7 +109,7 @@ if ("reference_accession" %in% colnames(non_normed)) {
   if ("gene_symbol" %in% colnames(non_normed)) {
     needs_aro <- which(is.na(non_normed$ARO) & !is.na(non_normed$gene_symbol))
     match_idx <- match(
-      tolower(non_normed$gene_symbol[needs_aro]),
+      tolower(str_replace_all(non_normed$gene_symbol[needs_aro], "_", " ")),
       tolower(card_collapsed$ARO_name)
     )
     non_normed$ARO[needs_aro[!is.na(match_idx)]] <-
