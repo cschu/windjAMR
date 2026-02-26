@@ -1,7 +1,8 @@
 process collate_tables {
+	executor "local"
 	publishDir "${params.output_dir}", mode: "copy"
-	time { 8.h * task.attempt }
-	memory { 8.GB * task.attempt }
+	// time { 30.m * task.attempt }
+	// memory { 8.GB * task.attempt }
 
 	input:
 	path(tables)
