@@ -2,6 +2,7 @@ include { windjamr_genes } from "./windjamr/workflows/genes"
 include { windjamr_contigs } from "./windjamr/workflows/contigs"
 include { windjamr_hybrid } from "./windjamr/workflows/hybrid"
 include { merge_dereplicate; merge_dereplicate_deeparg } from "./windjamr/modules/merge_dereplicate"
+include { collate_tables } from "./windjamr/modules/collate"
 
 params.contig_file_pattern = "**.{fna,fasta,fa,fna.gz,fasta.gz,fa.gz}"
 params.gene_file_pattern = "**.{faa,fna,fasta,fa,faa.gz,fna.gz,fasta.gz,fa.gz}"
@@ -44,7 +45,7 @@ workflow {
 	input_ch.dump(pretty: true, tag: "input_ch")
 
 
-	results_ch = Channel.empty()
+	tables_ch = Channel.empty()
 
 	if (params.runmode == "genes") {
 		windjamr_genes(
@@ -56,6 +57,7 @@ workflow {
 			"${projectDir}/assets/card_collapsed.tsv",
 			params.runmode
 		)
+		tables_ch = tables_ch.mix(merge_dereplicate.out.table)
 	} else if (params.runmode == "hybrid") {
 		windjamr_hybrid(
 			input_ch.map { row -> [ row.genome, row.proteins ] },
@@ -68,7 +70,10 @@ workflow {
 			"${projectDir}/assets/card_collapsed.tsv",
 			params.runmode
 		)
+		tables_ch = tables_ch.mix(merge_dereplicate_deeparg.out.table)
 	}
+
+	collate_tables(tables_ch.map { genome_id, table -> table }.collect())
 
 	// results_ch.dump(pretty: true, tag: "results_ch")
 
