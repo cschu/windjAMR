@@ -11,7 +11,7 @@ process merge_dereplicate {
 	val(runmode)
 
 	output:
-	path("${genome}.windjAMR.${runmode}.tsv"), emit: table
+	tuple val(genome), path("${genome}.windjAMR.${runmode}.tsv"), emit: table
 
 	script:
 
@@ -37,7 +37,7 @@ process merge_dereplicate_deeparg {
 	val(runmode)
 
 	output:
-	path("${genome}.windjAMR.${runmode}.tsv"), emit: table
+	tuple val(genome), path("${genome}.windjAMR.${runmode}.tsv"), emit: table
 
 	script:
 
