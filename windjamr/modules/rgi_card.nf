@@ -46,6 +46,7 @@ process rgi_card {
 
 	rgi main \
 	-n ${task.cpus} \
+	-a DIAMOND \
 	--input_sequence ${fasta} \
 	--output_file ${genome}/rgi/${genome} \
 	--input_type ${input_type} \
