@@ -9,6 +9,7 @@ process collate_tables {
 
 	output:
 	path("all_samples.summary.tsv"), emit: summary
+	path("all_samples.summary.tsv.gz"), emit: summary_gz
 
 	script:
 	"""
@@ -18,6 +19,8 @@ process collate_tables {
 		sample=\$(basename \$f .tsv | sed 's/\\.windjAMR\\..\\+\$//');
 		awk -v OFS='\\t' -v sample=\$sample 'NR>1 {print \$0,sample}' \$f >> all_samples.summary.tsv	
 	done
+
+	gzip all_samples.summary.tsv
 	"""
 
 
