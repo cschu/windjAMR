@@ -20,7 +20,7 @@ process collate_tables {
 		awk -v OFS='\\t' -v sample=\$sample 'NR>1 {print \$0,sample}' \$f >> all_samples.summary.tsv	
 	done
 
-	gzip all_samples.summary.tsv
+	gzip -c all_samples.summary.tsv > all_samples.summary.tsv.gz
 	"""
 
 
