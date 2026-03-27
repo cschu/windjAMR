@@ -14,6 +14,8 @@ process resfinder {
 
 	script:
 	"""
+	set -e -o pipefail
+
 	mkdir -p ${genome}/resfinder/
 
 	if [[ "${fasta}" == *".gz" ]]; then
@@ -29,5 +31,7 @@ process resfinder {
 	-s Other \
 	--acquired \
 	-j ${genome}/resfinder/${genome}.resfinder.json
+
+	rm -rfv genome.fna ${genome}/resfinder/*_blast
 	"""
 }

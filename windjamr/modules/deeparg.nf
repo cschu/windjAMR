@@ -53,6 +53,8 @@ process extract_deeparg_coords {
 
 	script:
 	"""
+	set -e -o pipefail
+
 	if [[ "${fasta}" == *".gz" ]]; then
 		gzip -dc ${fasta} > genes.ffn
 	else
@@ -60,5 +62,7 @@ process extract_deeparg_coords {
 	fi
 
 	extract_deeparg_coords.py ${deeparg_results} genes.ffn ${genome}.deeparg.coordinates.tsv
+
+	rm -fv genes.ffn
 	"""
 }

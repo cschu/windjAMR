@@ -10,6 +10,8 @@ process clean_faa {
 
 	script:
 	"""
+	set -e -o pipefail
+	
 	mkdir -p ${genome}/cleaned/
 
 	if [[ "${fasta}" == *".gz" ]]; then
@@ -19,6 +21,8 @@ process clean_faa {
 	fi
 
 	tr -d "*" < proteins.faa > ${genome}/cleaned/${genome}.faa
+
+	rm -fv proteins.faa
 	"""
 }
 

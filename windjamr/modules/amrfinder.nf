@@ -16,6 +16,8 @@ process amrfinder {
 
 	script:
 	"""
+	set -e -o pipefail
+
 	mkdir -p ${genome}/amrfinder/ tmp/
 	export TMPDIR=\$PWD/tmp
 	echo \$TMPDIR
@@ -39,12 +41,16 @@ process postprocess_amrfinder {
 
 	script:
 	"""
+	set -e -o pipefail
+
 	if [[ "${fasta}" == *".gz" ]]; then
 		gzip -dc ${fasta} > proteins.faa
 	else
 		ln -sf ${fasta} proteins.faa
 	fi
 	postprocess_amrfinder.py proteins.faa ${amrfinder_results} ${genome}.amrfinder.coordinates.tsv
+
+	rm -fv proteins.faa
 	"""
 	// "$FAA_FILE" "$INPUT_FILE" "$PREPPED_INPUT"
 }
