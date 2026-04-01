@@ -10,6 +10,8 @@ process clean_faa {
 
 	script:
 	"""
+	set -e -o pipefail
+	
 	mkdir -p ${genome}/cleaned/
 
 	if [[ "${fasta}" == *".gz" ]]; then
@@ -19,20 +21,23 @@ process clean_faa {
 	fi
 
 	tr -d "*" < proteins.faa > ${genome}/cleaned/${genome}.faa
+
+	rm -fv proteins.faa
 	"""
 }
 
 process rgi_card {
 	container "quay.io/biocontainers/rgi:6.0.5--pyh05cac1d_0"
 	publishDir "${params.output_dir}", mode: "copy"
-	time {8.h * task.attempt}
+	time {2.d * task.attempt}
 	memory {32.GB * task.attempt}
 	cpus 8
 	tag "${input_type}:${genome}"
 
 	input:
-	tuple val(genome), path(fasta), val(input_type)
+	tuple val(genome), path(fasta)
 	path(db)
+	val(input_type)
 
 	output:
 	tuple val(genome), path("${genome}/rgi/${genome}.txt"), emit: results
@@ -45,6 +50,7 @@ process rgi_card {
 
 	rgi main \
 	-n ${task.cpus} \
+	-a DIAMOND \
 	--input_sequence ${fasta} \
 	--output_file ${genome}/rgi/${genome} \
 	--input_type ${input_type} \

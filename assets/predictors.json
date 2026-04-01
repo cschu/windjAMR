@@ -1,0 +1,8 @@
+[
+	["amrfinderplus", "ncbi-amrfinderplus_4.0.23", "AMRFinder_2025-07-16.1"],
+	["rgi", "rgi_6.0.5", "CARD_4.0.1"],
+	["abricate_card", "abricate_1.2.0", "card"],
+	["abricate_x", "abricate_1.2.0", "abricate_1.2.0"],
+	["resfinder", "", ""],
+	["deeparg", "DeepARG 1.0.4", "DeepARG database v2"]
+]

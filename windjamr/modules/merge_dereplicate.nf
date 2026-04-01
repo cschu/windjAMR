@@ -1,6 +1,6 @@
 process merge_dereplicate {
 	container "ghcr.io/cschu/windjamr:main"
-	publishDir "${params.output_dir}", mode: "copy"
+	publishDir "${params.output_dir}/summaries", mode: "copy"
 	time '2.h'
 	memory '2.GB'
 	tag "${genome}"
@@ -11,7 +11,7 @@ process merge_dereplicate {
 	val(runmode)
 
 	output:
-	path("${genome}.windjAMR.${runmode}.tsv")
+	tuple val(genome), path("${genome}.windjAMR.${runmode}.tsv"), emit: table
 
 	script:
 
@@ -19,6 +19,32 @@ process merge_dereplicate {
 	
 	"""
 	${script} ${normed} ${cardfile} ${genome}.windjAMR.${runmode}.tsv ${non_normed}
+	"""
+
+}
+
+
+process merge_dereplicate_deeparg {
+	container "ghcr.io/cschu/windjamr:main"
+	publishDir "${params.output_dir}/summaries", mode: "copy"
+	time '2.h'
+	memory '2.GB'
+	tag "${genome}"
+
+	input:
+	tuple val(genome), path(normed), path(non_normed), path(deeparg_coords)
+	path(cardfile)
+	val(runmode)
+
+	output:
+	tuple val(genome), path("${genome}.windjAMR.${runmode}.tsv"), emit: table
+
+	script:
+
+	def script = "merge_dereplicate_${runmode}.R"
+	
+	"""
+	${script} ${normed} ${cardfile} ${deeparg_coords} ${genome}.windjAMR.${runmode}.tsv ${non_normed}
 	"""
 
 }

@@ -9,18 +9,48 @@ process amrfinder {
 	input:
 	tuple val(genome), path(fasta)
 	path(db)
+	val(input_type)
 
 	output:
 	tuple val(genome), path("${genome}/amrfinder/${genome}.tsv"), emit: results
 
 	script:
 	"""
+	set -e -o pipefail
+
 	mkdir -p ${genome}/amrfinder/ tmp/
 	export TMPDIR=\$PWD/tmp
 	echo \$TMPDIR
-	amrfinder --threads ${task.cpus} -n ${fasta} --database ${db} -o ${genome}/amrfinder/${genome}.tsv
+	amrfinder --threads ${task.cpus} --${input_type} ${fasta} --database ${db} -o ${genome}/amrfinder/${genome}.tsv
 
 	rm -rf tmp/
 	"""
 
+}
+
+process postprocess_amrfinder {
+	tag "${genome}"
+	memory {4.GB * task.attempt}
+	time {30.min * task.attempt}
+
+	input:
+	tuple val(genome), path(fasta), path(amrfinder_results)
+
+	output:
+	tuple val(genome), path("${genome}.amrfinder.coordinates.tsv"), emit: results
+
+	script:
+	"""
+	set -e -o pipefail
+
+	if [[ "${fasta}" == *".gz" ]]; then
+		gzip -dc ${fasta} > proteins.faa
+	else
+		ln -sf ${fasta} proteins.faa
+	fi
+	postprocess_amrfinder.py proteins.faa ${amrfinder_results} ${genome}.amrfinder.coordinates.tsv
+
+	rm -fv proteins.faa
+	"""
+	// "$FAA_FILE" "$INPUT_FILE" "$PREPPED_INPUT"
 }

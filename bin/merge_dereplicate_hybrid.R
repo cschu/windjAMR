@@ -1,4 +1,3 @@
-
 #!/usr/bin/env Rscript
 
 library(dplyr)
@@ -9,21 +8,60 @@ library(stringr)
 # -----------------------------
 args <- commandArgs(trailingOnly = TRUE)
 
-if (length(args) < 4) {
+if (length(args) < 5) {
   stop("Usage:
-  Rscript script.R combined_normed.tsv card_collapsed.tsv output.tsv non_normed1.tsv [non_normed2.tsv ...]")
+  Rscript script.R combined_normed.tsv card_collapsed.tsv deeparg_coords.tsv output.tsv non_normed1.tsv [non_normed2.tsv ...]")
 }
 
 combined_normed_file <- args[1]
 card_file            <- args[2]
-output_file          <- args[3]
-non_normed_files     <- args[4:length(args)]
+deeparg_coords_file  <- args[3]
+output_file          <- args[4]
+non_normed_files     <- args[5:length(args)]
 
 # -----------------------------
 # Load data
 # -----------------------------
 card_collapsed     <- read.delim(card_file, stringsAsFactors = FALSE)
 hamronized_normed  <- read.delim(combined_normed_file, comment.char = "#")
+
+# -----------------------------
+# Patch deepARG coordinates
+# -----------------------------
+deeparg_coords <- read.delim(deeparg_coords_file, stringsAsFactors = FALSE)
+# Expected columns: input_sequence_id, start, stop
+
+# Validate expected columns are present
+required_coord_cols <- c("input_sequence_id", "start", "stop")
+if (!all(required_coord_cols %in% colnames(deeparg_coords))) {
+  stop(paste(
+    "deeparg_coords file is missing one or more required columns:",
+    paste(setdiff(required_coord_cols, colnames(deeparg_coords)), collapse = ", ")
+  ))
+}
+
+# Build a lookup keyed on input_sequence_id
+coord_lookup <- deeparg_coords %>%
+  select(input_sequence_id, start, stop) %>%
+  distinct(input_sequence_id, .keep_all = TRUE)
+
+# Identify rows in hamronized_normed whose input_sequence_id appears in the coord file
+match_idx <- match(hamronized_normed$input_sequence_id, coord_lookup$input_sequence_id)
+rows_to_patch <- which(!is.na(match_idx))
+
+n_patched <- length(rows_to_patch)
+if (n_patched == 0) {
+  warning("No input_sequence_id values in combined_normed_file matched the deeparg_coords file. ",
+          "Check that IDs are consistent between files.")
+} else {
+  message(sprintf("Patching coordinates for %d row(s) from deeparg_coords.", n_patched))
+  hamronized_normed$input_gene_start[rows_to_patch] <-
+    coord_lookup$start[match_idx[rows_to_patch]]
+  hamronized_normed$input_gene_stop[rows_to_patch] <-
+    coord_lookup$stop[match_idx[rows_to_patch]]
+}
+
+
 
 # Read all non-normed files and rbind immediately
 non_normed_list <- lapply(non_normed_files, function(f) {
@@ -48,9 +86,6 @@ non_normed_list <- lapply(non_normed_files, function(f) {
   return(df)
 })
 
-# Remove NULLs before binding
-non_normed_list <- Filter(Negate(is.null), non_normed_list)
-
 # If all files were empty, create empty df
 if (length(non_normed_list) == 0) {
   non_normed <- data.frame()
@@ -71,12 +106,10 @@ if ("reference_accession" %in% colnames(non_normed)) {
     NA_character_
   )
   
-  # For rows without a valid ARO (e.g. Abricate with accession-style references),
-  # attempt lookup via gene_symbol -> ARO_name in card_collapsed
   if ("gene_symbol" %in% colnames(non_normed)) {
     needs_aro <- which(is.na(non_normed$ARO) & !is.na(non_normed$gene_symbol))
     match_idx <- match(
-      tolower(non_normed$gene_symbol[needs_aro]),
+      tolower(str_replace_all(non_normed$gene_symbol[needs_aro], "_", " ")),
       tolower(card_collapsed$ARO_name)
     )
     non_normed$ARO[needs_aro[!is.na(match_idx)]] <-
@@ -84,30 +117,23 @@ if ("reference_accession" %in% colnames(non_normed)) {
   }
 }
 
-
 # -----------------------------
 # Harmonize columns and combine
 # -----------------------------
-# Identify all columns that exist in either df
 all_cols <- union(colnames(hamronized_normed), colnames(non_normed))
 
-# Add missing columns as NA
 for (col in setdiff(all_cols, colnames(hamronized_normed))) hamronized_normed[[col]] <- NA
 for (col in setdiff(all_cols, colnames(non_normed))) non_normed[[col]] <- NA
 
-# Convert all columns in both data frames to character
 hamronized_normed <- hamronized_normed %>% mutate(across(everything(), as.character))
 non_normed         <- non_normed %>% mutate(across(everything(), as.character))
 
-# Reorder columns
 hamronized_normed <- hamronized_normed[, all_cols]
 non_normed        <- non_normed[, all_cols]
 
-# Then combine
 combined_normed <- bind_rows(hamronized_normed, non_normed)
 
-# Convert relevant numeric columns back to numeric
-numeric_cols <- c("input_gene_start", "input_gene_stop") # add any others as needed
+numeric_cols <- c("input_gene_start", "input_gene_stop")
 combined_normed[numeric_cols] <- lapply(combined_normed[numeric_cols], as.numeric)
 
 # -----------------------------
@@ -136,6 +162,26 @@ for (col in cols_to_update) {
     combined_normed[update_rows, col] <-
       card_collapsed[[col]][update_card_idx]
   }
+}
+
+# -----------------------------
+# Populate coordinates for RGI rows
+# -----------------------------
+
+# Parse coordinates from Prodigal-style input_sequence_id where present
+prodigal_coord_pattern <- "^\\S+\\s*#\\s*(\\d+)\\s*#\\s*(\\d+)"
+
+parsed_coords <- str_match(combined_normed$input_sequence_id, prodigal_coord_pattern)
+
+rows_with_parsed <- which(!is.na(parsed_coords[,1]) & 
+                            combined_normed$analysis_software_name == "rgi" &
+                            (is.na(combined_normed$input_gene_start) | 
+                               is.na(combined_normed$input_gene_stop)))
+
+if (length(rows_with_parsed) > 0) {
+  message(sprintf("Populating coordinates for RGI outputs for %d row(s).", length(rows_with_parsed)))
+  combined_normed$input_gene_start[rows_with_parsed] <- as.numeric(parsed_coords[rows_with_parsed, 2])
+  combined_normed$input_gene_stop[rows_with_parsed]  <- as.numeric(parsed_coords[rows_with_parsed, 3])
 }
 
 # -----------------------------
@@ -226,4 +272,3 @@ write.table(
   quote = FALSE,
   row.names = FALSE
 )
-
