@@ -16,13 +16,15 @@ process resfinder {
 	"""
 	set -e -o pipefail
 
-	mkdir -p ${genome}/resfinder/
+	mkdir -p ${genome}/resfinder/ tmp/
 
 	if [[ "${fasta}" == *".gz" ]]; then
 		gzip -dc ${fasta} > genome.fna
 	else
 		ln -sf ${fasta} genome.fna
 	fi
+
+	export TMPDIR=tmp
 
 	python3 -m resfinder \
 	--kma_threads ${task.cpus} \
