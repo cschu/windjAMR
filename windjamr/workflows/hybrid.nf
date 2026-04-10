@@ -1,4 +1,4 @@
-include { hamronize; hamronize_summarize } from "../modules/hamronize"
+include { batch_hamronize; hamronize; hamronize_summarize } from "../modules/hamronize"
 include { argnorm } from "../modules/argnorm"
 include { amrfinder } from "../modules/amrfinder"
 include { rgi_card } from "../modules/rgi_card"
@@ -49,18 +49,46 @@ workflow windjamr_hybrid {
 		resfinder.out.results.map { genome, results -> [ "resfinder", genome, results, null ] }
 	)
 
+	// hamronize_input_ch = hamronize_input_ch
+	// 	.combine(predictors, by: 0)
+	// 	.map {
+	// 		tool, genome, results, db, tool_version, db_version -> [ genome, results, tool.replaceAll(/abricate_.+/, "abricate"), tool_version, db_version, db ]
+	// 	}
+
+	// hamronize(hamronize_input_ch)
+
 	hamronize_input_ch = hamronize_input_ch
 		.combine(predictors, by: 0)
 		.map {
-			tool, genome, results, db, tool_version, db_version -> [ genome, results, tool.replaceAll(/abricate_.+/, "abricate"), tool_version, db_version, db ]
+			tool, genome, results, db, tool_version, db_version -> [ tool.replaceAll(/abricate_.+/, "abricate"), tool_version, db, db_version, results ]
 		}
+		.groupTuple(by: [0, 1, 2, 3])
 
-	hamronize(hamronize_input_ch)
+	batch_hamronize(hamronize_input_ch)
 
-	hamronize_summarize_input_ch = hamronize.out.results
-		.filter { it -> ( it[2] == "resfinder" || (it[2] == "abricate" && it[5] != "card") || it[2] == "amrfinderplus" || it[2] == "deeparg" ) }
-		.map { genome, results, tool, tool_version, db_version, db -> [ genome, results ] }
+	hamronize_summarize_input_ch = batch_hamronize.out.results.flatten()
+		.map { file -> 
+			// \$genome.${tool}.${db}.hamronized.tsv
+			def prefix = file.name.replaceAll(/\.hamronized.tsv$/, "")
+			// \$genome.${tool}.${db}
+			// def db = prefix.replaceAll(/[^.]+\./, "")
+			def tokens = prefix.tokenize(".")
+			def db = tokens[-1]
+			def tool = tokens[-2]
+			tokens.remove(-1)
+			tokens.remove(-1)
+			def genome = tokens.join(".")
+			return [ genome, tool, db, file ]
+		}
+		.filter { it -> ( it[1] == "resfinder" || (it[1] == "abricate" && it[2] != "card") || it[1] == "amrfinderplus" || it[1] == "deeparg" ) }
+		.map { genome, tool, db, file -> [ genome, file ] }
 		.groupTuple(by: 0, sort: true)
+
+
+	// hamronize_summarize_input_ch = hamronize.out.results
+	// 	.filter { it -> ( it[2] == "resfinder" || (it[2] == "abricate" && it[5] != "card") || it[2] == "amrfinderplus" || it[2] == "deeparg" ) }
+	// 	.map { genome, results, tool, tool_version, db_version, db -> [ genome, results ] }
+	// 	.groupTuple(by: 0, sort: true)
 
 	hamronize_summarize(hamronize_summarize_input_ch)
 
