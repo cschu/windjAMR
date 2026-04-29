@@ -53,7 +53,7 @@ workflow {
 			predictors_ch
 		)
 		merge_dereplicate(
-			results_ch.mix(windjamr_genes.out.results),
+			windjamr_genes.out.results,
 			"${projectDir}/assets/card_collapsed.tsv",
 			params.runmode
 		)
